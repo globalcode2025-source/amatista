@@ -1,0 +1,101 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=Jost:wght@300;400;500;600&family=Caveat:wght@500;600;700&display=swap');
+@import 'tailwindcss';
+
+/* ============================================================
+   Tema de marca — Tailwind v4 lee las variables de aquí, no de
+   un tailwind.config.js. Cada --color-* genera automáticamente
+   las utilidades bg-*, text-*, border-*, etc.
+   ============================================================ */
+@theme {
+  --color-amatista-deep: #362043;
+  --color-amatista-mid: #7a5c94;
+  --color-gold: #be9b5e;
+  --color-gold-light: #e4c892;
+  --color-cream: #f4eee3;
+  --color-ink: #241825;
+
+  /* utilidad para estados (usada más adelante en el admin) */
+  --color-success: #5b8266;
+  --color-info: #6b87a6;
+  --color-danger: #b5544a;
+
+  --font-serif: 'Fraunces', serif;
+  --font-sans: 'Jost', sans-serif;
+  --font-hand: 'Caveat', cursive;
+
+  --animate-geode-breathe: geodeBreathe 16s ease-in-out infinite;
+  --animate-drift-up: driftUp 9s ease-in infinite;
+  --animate-scroll-down: scrollDown 1.8s ease-in-out infinite;
+  --animate-marquee: marquee 90s linear infinite;
+}
+
+/* Los keyframes van fuera de @theme, a nivel raíz del archivo */
+@keyframes geodeBreathe {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) rotate(1.2deg) scale(1.02);
+  }
+}
+
+@keyframes driftUp {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-70vh) translateX(14px);
+    opacity: 0;
+  }
+}
+
+@keyframes scrollDown {
+  0% {
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+  50% {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+  51% {
+    transform-origin: bottom;
+  }
+  100% {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-cream text-ink font-sans antialiased;
+  }
+  ::selection {
+    @apply bg-gold-light text-ink;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
