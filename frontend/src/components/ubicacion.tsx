@@ -5,10 +5,10 @@ export function Ubicacion() {
         <div>
           <span className="font-hand text-[1.3rem] text-gold">Visítanos</span>
           <h2 className="mt-2 font-serif text-[clamp(2rem,3.4vw,2.8rem)] font-semibold text-ink">
-            Nuestro rincón en La Ceja
+            Nuestro rincón en El Retiro
           </h2>
           <p className="mt-4 leading-[1.7] text-ink/68">
-            Ubicados en La Ceja, Antioquia — tierra de flores y artesanía. Aquí realizamos el Taller de Kintsugi y
+            Ubicados en El Retiro, Antioquia — tierra de flores y artesanía. Aquí realizamos el Taller de Kintsugi y
             puedes recoger tu pedido si lo prefieres.
           </p>
 
@@ -20,7 +20,7 @@ export function Ubicacion() {
               </svg>
               <div>
                 <strong className="block font-serif font-semibold text-ink">Dónde estamos</strong>
-                La Ceja, Antioquia, Colombia. Dirección exacta al confirmar tu cupo.
+                El Retiro, Antioquia, Colombia. Dirección exacta al confirmar tu cupo.
               </div>
             </li>
             <li className="flex items-start gap-3.5 text-[0.95rem] leading-snug text-ink/75">
@@ -30,7 +30,7 @@ export function Ubicacion() {
               </svg>
               <div>
                 <strong className="block font-serif font-semibold text-ink">Horario de atención</strong>
-                Miércoles a sábado, 10:00 a.m. – 6:00 p.m. (con cita previa)
+                Lunes a Sábado, 08:00 a.m. – 7:00 p.m. 
               </div>
             </li>
             <li className="flex items-start gap-3.5 text-[0.95rem] leading-snug text-ink/75">
@@ -40,7 +40,7 @@ export function Ubicacion() {
               </svg>
               <div>
                 <strong className="block font-serif font-semibold text-ink">Cómo llegar</strong>
-                A 45 min de Medellín por la vía a Rionegro–La Ceja. Parqueadero cercano disponible.
+                A 45 min de Medellín por la vía a Don Diego - La Ceja. Parqueadero cercano disponible.
               </div>
             </li>
           </ul>
@@ -59,7 +59,7 @@ export function Ubicacion() {
           <iframe
             src="https://www.google.com/maps?q=La+Ceja,+Antioquia,+Colombia&output=embed"
             loading="lazy"
-            title="Mapa Amatista - La Ceja, Antioquia"
+            title="Mapa Amatista - El Retiro, Antioquia"
             referrerPolicy="no-referrer-when-downgrade"
             className="h-full w-full grayscale-[15%] contrast-[1.02]"
           />

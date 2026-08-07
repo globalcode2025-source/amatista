@@ -98,7 +98,7 @@ export function Productos() {
                     href="#"
                     className="group/link text-[0.78rem] uppercase tracking-wide text-amatista-mid"
                   >
-                    Añadir
+                    Comprar
                     <span className="ml-1 inline-block transition-transform duration-300 group-hover/link:translate-x-1">
                       →
                     </span>

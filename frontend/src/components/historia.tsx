@@ -71,7 +71,7 @@ export function Historia() {
             href="#eventos"
             className="mt-2.5 inline-block rounded-sm border border-amatista-deep px-8 py-4 text-sm uppercase tracking-wider text-amatista-deep transition-all duration-300 hover:border-gold hover:bg-gold hover:text-ink"
           >
-            Conoce nuestros talleres
+            Conoce sobre nosotros
           </a>
         </div>
       </div>

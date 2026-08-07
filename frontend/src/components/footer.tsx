@@ -119,7 +119,7 @@ export function Footer() {
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-2.5 pt-6 text-[0.78rem]">
-          <span>© 2026 Amatista Velas y Aromas. Hecho con amor en Colombia.</span>
+          <span>© 2026 Amatista Velas y Aromas</span>
         </div>
       </div>
     </footer>

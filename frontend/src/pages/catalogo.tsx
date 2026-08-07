@@ -177,7 +177,7 @@ export default function Catalogo() {
                     <div className="mt-4 flex items-center justify-between border-t border-ink/8 pt-4">
                       <span className="font-serif text-[1.1rem] font-semibold text-ink">{money(p.price)}</span>
                       <a href="#" className="group/link text-[0.78rem] uppercase tracking-wide text-amatista-mid">
-                        Añadir
+                        Comprar
                         <span className="ml-1 inline-block transition-transform duration-300 group-hover/link:translate-x-1">
                           →
                         </span>
@@ -199,7 +199,7 @@ export default function Catalogo() {
           </a>{' '}
           ·{' '}
           <a href="/#ubicacion" className="text-gold-light">
-            La Ceja, Antioquia
+            El Retiro, Antioquia
           </a>
         </div>
       </footer>

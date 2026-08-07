@@ -6,7 +6,7 @@ const DEFAULT_ITEMS = [
   'Velas artesanales',
   'Wax melts',
   'Taller de Kintsugi',
-  'La Ceja, Antioquia',
+  'El Retiro, Antioquia',
   'Envíos a toda Colombia',
 ];
 

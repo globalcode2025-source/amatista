@@ -1,3 +1,5 @@
+import logoPrincipi from '../assets/images/logoPrinci.png';
+
 export interface HeroStat {
   value: string;
   label: string;
@@ -23,9 +25,8 @@ export interface HeroProps {
 }
 
 const DEFAULT_STATS: HeroStat[] = [
-  { value: '130+', label: 'Almas en comunidad' },
   { value: '100%', label: 'Hecho a mano' },
-  { value: '32', label: 'Departamentos con envío' },
+  { value: '100%', label: 'Envío a todo Colombia' },
 ];
 
 const PARTICLES = [
@@ -43,7 +44,7 @@ const BTN_GOLD = 'bg-gold text-ink hover:bg-gold-light hover:-translate-y-0.5';
 const BTN_OUTLINE = 'border border-cream/50 text-cream hover:border-gold hover:text-gold-light';
 
 export function Hero({
-  location = 'La Ceja, Antioquia',
+  location = 'El Retiro, Antioquia',
   since = 'Desde 2026',
   titlePrefix = 'Enciende lo que te',
   highlightWord = 'sana',
@@ -67,29 +68,12 @@ export function Hero({
         }}
       />
 
-      {/* cristal de amatista decorativo de fondo */}
-      <svg
+      {/* logo de fondo */}
+      <img
         aria-hidden="true"
-        viewBox="0 0 600 520"
-        fill="none"
-        className="pointer-events-none absolute left-1/2 top-[50%] z-0 w-[min(620px,96vw)] -translate-x-1/2 -translate-y-1/2 opacity-[0.16] animate-geode-breathe"
-      >
-        <polygon points="300,18 336,294 264,294" fill="#7A5C94" opacity=".55" />
-        <polygon points="220,58 260,312 178,294" fill="#9C85B1" opacity=".42" />
-        <polygon points="380,58 422,312 340,294" fill="#9C85B1" opacity=".42" />
-        <polygon points="150,120 198,328 128,304" fill="#7A5C94" opacity=".34" />
-        <polygon points="450,120 498,304 402,328" fill="#7A5C94" opacity=".34" />
-        <polygon points="92,184 144,340 72,316" fill="#5b3f70" opacity=".26" />
-        <polygon points="508,184 560,316 456,340" fill="#5b3f70" opacity=".26" />
-        <g stroke="#E4C892" strokeWidth="1" opacity=".6">
-          <polygon points="300,18 336,294 264,294" />
-          <polygon points="220,58 260,312 178,294" />
-          <polygon points="380,58 422,312 340,294" />
-          <polygon points="150,120 198,328 128,304" />
-          <polygon points="450,120 498,304 402,328" />
-        </g>
-        <ellipse cx="300" cy="332" rx="240" ry="24" fill="#241825" opacity=".5" />
-      </svg>
+        src={logoPrincipi}
+        className="pointer-events-none absolute left-1/2 top-[48%] z-0 w-[min(1280px,310vw)] -translate-x-1/2 -translate-y-1/2 select-none opacity-[0.2] drop-shadow-[0_0_34px_rgba(228,200,146,0.18)] md:w-[min(990px,218vw)]"
+      />
 
       {/* partículas doradas flotando */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-[1] overflow-hidden">

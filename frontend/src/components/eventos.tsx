@@ -47,7 +47,7 @@ export function Eventos({
             El Taller de Kintsugi
           </h2>
           <p className="mt-4 leading-relaxed text-cream/72">
-            Nuestro único encuentro presencial — y el corazón de Amatista. Cupos limitados, en La Ceja, Antioquia.
+            Nuestro único encuentro presencial — y el corazón de Amatista. Cupos limitados, en El Retiro, Antioquia.
           </p>
         </div>
 

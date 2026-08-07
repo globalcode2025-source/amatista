@@ -3,6 +3,17 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import Home from './pages/home';
 import Catalogo from './pages/catalogo';
 import Login from './pages/login';
+import AdminLayout from './admin/AdminLayout';
+import Dashboard from './admin/pages/Dashboard';
+import Pedidos from './admin/pages/Pedidos';
+import Clientes from './admin/pages/Clientes';
+import Productos from './admin/pages/Productos';
+import Eventos from './admin/pages/Eventos';
+import Galeria from './admin/pages/Galeria';
+import Testimonios from './admin/pages/Testimonios';
+import Ingresos from './admin/pages/Ingresos';
+import Gastos from './admin/pages/Gastos';
+import Costos from './admin/pages/Costos';
 
 function ScrollToHash() {
   const { hash } = useLocation();
@@ -28,7 +39,19 @@ export default function App() {
         <Route path="/productos" element={<Catalogo />} />
         <Route path="/catalogo" element={<Catalogo />} />
         <Route path="/login" element={<Login />} />
-        {/* más adelante: rutas /admin/* */}
+        
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="pedidos" element={<Pedidos />} />
+          <Route path="clientes" element={<Clientes />} />
+          <Route path="productos" element={<Productos />} />
+          <Route path="eventos" element={<Eventos />} />
+          <Route path="galeria" element={<Galeria />} />
+          <Route path="testimonios" element={<Testimonios />} />
+          <Route path="ingresos" element={<Ingresos />} />
+          <Route path="gastos" element={<Gastos />} />
+          <Route path="costos" element={<Costos />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );
