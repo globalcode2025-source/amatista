@@ -46,21 +46,8 @@ export function Nav({ links = DEFAULT_LINKS, ctaLabel = 'Reservar taller', ctaHr
         {/* Marca */}
         <Link
           to="/login"
-          className={`inline-flex items-center gap-2 font-serif text-[1rem] font-medium tracking-[0.03em] opacity-90 transition-opacity duration-300 hover:opacity-100 focus-visible:outline-none ${textColor}`}
+          className={`inline-flex items-center font-serif text-[1.35rem] font-semibold tracking-[0.04em] opacity-90 transition-opacity duration-300 hover:opacity-100 focus-visible:outline-none ${textColor}`}
         >
-          <svg viewBox="0 0 40 40" fill="none" className="h-[24px] w-[24px] shrink-0">
-            <path
-              d="M20 4c2 4 4 5 4 8a4 4 0 1 1-8 0c0-3 2-4 4-8Z"
-              stroke="currentColor"
-              strokeWidth="1.4"
-            />
-            <path
-              d="M9 18c0-3 3-5 5-5h12c2 0 5 2 5 5v6c0 6-5 10-11 10S9 30 9 24v-6Z"
-              stroke="currentColor"
-              strokeWidth="1.4"
-            />
-            <circle cx="20" cy="22" r="4" stroke="currentColor" strokeWidth="1.4" />
-          </svg>
           <span className="whitespace-nowrap">Amatista</span>
         </Link>
 

@@ -11,21 +11,20 @@ import Productos from './admin/pages/Productos';
 import Eventos from './admin/pages/Eventos';
 import Galeria from './admin/pages/Galeria';
 import Testimonios from './admin/pages/Testimonios';
-import Ingresos from './admin/pages/Ingresos';
 import Gastos from './admin/pages/Gastos';
 import Costos from './admin/pages/Costos';
+import Proveedores from './admin/pages/Proveedores';
 
 function ScrollToHash() {
-  const { hash } = useLocation();
+  const { hash, pathname } = useLocation();
 
   useEffect(() => {
-    if (!hash) return;
-
-    const target = document.getElementById(hash.slice(1));
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }, [hash]);
+    const frame = window.requestAnimationFrame(() => {
+      if (!hash) { window.scrollTo({ top: 0, behavior: 'auto' }); return; }
+      document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: 'auto', block: 'start' });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [hash, pathname]);
 
   return null;
 }
@@ -42,15 +41,15 @@ export default function App() {
         
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Dashboard />} />
-          <Route path="pedidos" element={<Pedidos />} />
+          <Route path="ventas" element={<Pedidos />} />
           <Route path="clientes" element={<Clientes />} />
           <Route path="productos" element={<Productos />} />
           <Route path="eventos" element={<Eventos />} />
           <Route path="galeria" element={<Galeria />} />
           <Route path="testimonios" element={<Testimonios />} />
-          <Route path="ingresos" element={<Ingresos />} />
           <Route path="gastos" element={<Gastos />} />
           <Route path="costos" element={<Costos />} />
+          <Route path="proveedores" element={<Proveedores />} />
         </Route>
       </Routes>
     </BrowserRouter>

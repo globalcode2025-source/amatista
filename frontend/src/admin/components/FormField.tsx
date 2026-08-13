@@ -6,10 +6,11 @@ export interface FieldOption {
 export interface FieldConfig {
   key: string;
   label: string;
-  type: 'text' | 'email' | 'tel' | 'number' | 'date' | 'select' | 'textarea';
+  type: 'text' | 'email' | 'tel' | 'number' | 'date' | 'time' | 'select' | 'textarea';
   options?: FieldOption[];
   required?: boolean;
   placeholder?: string;
+  className?: string;
 }
 
 interface FormFieldProps {
@@ -24,7 +25,7 @@ const baseClass =
 export function FormField({ field, value, onChange }: FormFieldProps) {
   if (field.type === 'select') {
     return (
-      <label className="block">
+      <label className={`block ${field.className ?? ''}`}>
         <span className="mb-1.5 block text-xs uppercase tracking-wide text-ink/55">{field.label}</span>
         <select
           className={baseClass}
@@ -47,7 +48,7 @@ export function FormField({ field, value, onChange }: FormFieldProps) {
 
   if (field.type === 'textarea') {
     return (
-      <label className="block">
+      <label className={`block ${field.className ?? ''}`}>
         <span className="mb-1.5 block text-xs uppercase tracking-wide text-ink/55">{field.label}</span>
         <textarea
           className={`${baseClass} min-h-[90px] resize-y`}
@@ -61,7 +62,7 @@ export function FormField({ field, value, onChange }: FormFieldProps) {
   }
 
   return (
-    <label className="block">
+    <label className={`block ${field.className ?? ''}`}>
       <span className="mb-1.5 block text-xs uppercase tracking-wide text-ink/55">{field.label}</span>
       <input
         type={field.type}
@@ -69,7 +70,7 @@ export function FormField({ field, value, onChange }: FormFieldProps) {
         required={field.required}
         placeholder={field.placeholder}
         value={value ?? ''}
-        onChange={(e) => onChange(field.key, field.type === 'number' ? Number(e.target.value) : e.target.value)}
+          onChange={(e) => onChange(field.key, field.type === 'number' ? (e.target.value === '' ? '' : Number(e.target.value)) : e.target.value)}
       />
     </label>
   );

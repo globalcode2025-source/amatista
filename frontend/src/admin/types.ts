@@ -23,6 +23,7 @@ export type EstadoEvento = 'Próximo' | 'Realizado' | 'Cancelado';
 export interface EventoAdmin {
   id: string;
   nombre: string;
+  tipo: TipoContenido;
   media: string;
   descripcion: string;
   fecha: string;
@@ -37,20 +38,24 @@ export interface EventoAdmin {
   estado: EstadoEvento;
 }
 
-export type EstadoPedido = 'Pendiente' | 'En proceso' | 'Despachado' | 'Entregado';
+export interface LineaVenta {
+  productoId: string;
+  nombre: string;
+  precioUnitario: number;
+  cantidad: number;
+  subtotal: number;
+}
 
 export interface Pedido {
   id: string;
   clienteId: string;
   codigo: string;
-  cantidad: number;
-  descripcion: string;
   fecha: string;
   formaPago: string;
   direccionEnvio: string;
-  estado: EstadoPedido;
   total: number;
   notas?: string;
+  productos: LineaVenta[];
 }
 
 export type TipoContenido = 'Imagen' | 'Video';
@@ -82,13 +87,46 @@ export interface Ingreso {
   metodoPago: string;
 }
 
+export type CategoriaGasto = 'Transporte' | 'Comida' | 'Papelería' | 'Servicio' | 'Operativo' | 'Otro';
+
 export interface Gasto {
   id: string;
   fecha: string;
   concepto: string;
-  categoria: string;
-  proveedor?: string;
+  categoria: CategoriaGasto;
   monto: number;
+}
+
+export interface Proveedor {
+  id: string;
+  nombreEmpresa: string;
+  nit?: string;
+  direccion: string;
+  celular: string;
+  municipio: string;
+}
+
+export interface MaterialCosto {
+  id?: string;
+  proveedorId: string;
+  proveedorNombre?: string;
+  descripcion: string;
+  cantidad: string;
+  valor: number;
+}
+
+export interface CostoProduccion {
+  id: string;
+  fecha: string;
+  productoId: string;
+  productoNombre: string;
+  precioProducto: number;
+  cantidadProducida: number;
+  costoTotal: number;
+  costoUnitario: number;
+  margenUnitario: number;
+  margenPorcentaje: number;
+  materiales: MaterialCosto[];
 }
 
 /** Costos de producción — insumos que componen el costo de cada producto */

@@ -1,16 +1,14 @@
 import { useOutletContext } from 'react-router-dom';
 import type { AdminContextType } from '../admin/AdminLayout';
-import { StatusBadge } from '../components/StatusBadge';
 
 const money = (n: number) => `$${n.toLocaleString('es-CO')}`;
 
 export default function Dashboard() {
-  const { ingresos, gastos, pedidos, clientes, eventos } = useOutletContext<AdminContextType>();
+  const { gastos, pedidos, clientes, eventos } = useOutletContext<AdminContextType>();
 
-  const totalIngresos = ingresos.items.reduce((sum: number, i: { monto: number }) => sum + i.monto, 0);
+  const totalVentas = pedidos.items.reduce((sum: number, p: { total: number }) => sum + p.total, 0);
   const totalGastos = gastos.items.reduce((sum: number, g: { monto: number }) => sum + g.monto, 0);
-  const balance = totalIngresos - totalGastos;
-  const pedidosPendientes = pedidos.items.filter((p: { estado: string }) => p.estado === 'Pendiente').length;
+  const balance = totalVentas - totalGastos;
 
   const proximoEvento = [...eventos.items]
     .filter((e: { estado: string }) => e.estado === 'Próximo')
@@ -20,10 +18,10 @@ export default function Dashboard() {
   const nombreCliente = (id: string) => clientes.items.find((c: { id: string; nombre: string }) => c.id === id)?.nombre ?? 'Cliente eliminado';
 
   const kpis = [
-    { label: 'Ingresos totales', value: money(totalIngresos), accent: 'text-success' },
+    { label: 'Ventas totales', value: money(totalVentas), accent: 'text-success' },
     { label: 'Gastos totales', value: money(totalGastos), accent: 'text-danger' },
     { label: 'Balance', value: money(balance), accent: balance >= 0 ? 'text-success' : 'text-danger' },
-    { label: 'Pedidos pendientes', value: String(pedidosPendientes), accent: 'text-gold' },
+    { label: 'Número de ventas', value: String(pedidos.items.length), accent: 'text-gold' },
   ];
 
   return (
@@ -51,7 +49,6 @@ export default function Dashboard() {
                   <div className="font-medium text-ink">{nombreCliente(p.clienteId)}</div>
                   <div className="text-xs text-ink/50">{p.fecha}</div>
                 </div>
-                <StatusBadge estado={p.estado} />
                 <span className="font-serif font-semibold text-ink">{money(p.total)}</span>
               </div>
             ))}

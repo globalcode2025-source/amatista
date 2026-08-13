@@ -5,15 +5,16 @@ interface ModalProps {
   title: string;
   onClose: () => void;
   children: ReactNode;
+  size?: 'default' | 'wide';
 }
 
-export function Modal({ open, title, onClose, children }: ModalProps) {
+export function Modal({ open, title, onClose, children, size = 'default' }: ModalProps) {
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-[300] flex items-center justify-center bg-ink/50 p-4" onClick={onClose}>
       <div
-        className="max-h-[90vh] w-full max-w-[560px] overflow-y-auto rounded-sm bg-white p-8 shadow-2xl"
+        className={`max-h-[90vh] w-full overflow-y-auto rounded-sm bg-white p-6 shadow-2xl sm:p-8 ${size === 'wide' ? 'max-w-[920px]' : 'max-w-[640px]'}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-6 flex items-center justify-between">

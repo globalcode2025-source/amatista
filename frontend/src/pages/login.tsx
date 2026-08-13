@@ -35,7 +35,7 @@ export default function Login() {
                   <h2 className="mt-1 font-serif text-[clamp(1.8rem,4vw,2rem)] font-semibold text-ink">Amatista</h2>
                 </div>
                 <Link
-                  to="/"
+                  to="/#inicio"
                   className="text-sm uppercase tracking-[0.06em] text-amatista-mid transition-colors hover:text-amatista-deep"
                 >
                   Volver

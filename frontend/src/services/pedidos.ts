@@ -1,0 +1,6 @@
+import type { Pedido } from '../admin/types'; import { apiUrl } from './api';
+const BASE=apiUrl('/api/pedidos'); type VentaItemInput={ productoId:string; cantidad:number }; export type CreateInput={ clienteId:string; formaPago:string; notas?:string; productos:VentaItemInput[] }; export type UpdateInput=Partial<CreateInput>; const message=async(r:Response)=> (await r.json().catch(()=>null))?.detail??'No se pudo guardar la venta';
+export async function fetchPedidos(){const r=await fetch(BASE);if(!r.ok)throw new Error('No se pudieron cargar los pedidos');return await r.json() as Pedido[]}
+export async function createPedido(i:CreateInput){const r=await fetch(BASE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(i)});if(!r.ok)throw new Error(await message(r));return await r.json() as Pedido}
+export async function updatePedido(id:string,i:Partial<UpdateInput>){const r=await fetch(`${BASE}/${id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(i)});if(!r.ok)throw new Error(await message(r));return await r.json() as Pedido}
+export async function deletePedido(id:string){const r=await fetch(`${BASE}/${id}`,{method:'DELETE'});if(!r.ok)throw new Error('No se pudo eliminar el pedido')}

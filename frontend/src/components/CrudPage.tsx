@@ -53,11 +53,7 @@ export function CrudPage<T extends { id: string }>({
     setModalOpen(true);
   };
 
-  const handleDelete = (row: T) => {
-    if (window.confirm(`¿Eliminar este ${singular.toLowerCase()}? Esta acción no se puede deshacer.`)) {
-      onDelete(row.id);
-    }
-  };
+  const handleDelete = (row: T) => onDelete(row.id);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -105,7 +101,7 @@ export function CrudPage<T extends { id: string }>({
               onChange={(key, value) => setFormData((prev) => ({ ...prev, [key]: value }))}
             />
           ))}
-          <div className="mt-2 flex justify-end gap-3">
+          <div className="mt-2 flex justify-center gap-3">
             <button
               type="button"
               onClick={() => setModalOpen(false)}

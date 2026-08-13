@@ -6,20 +6,18 @@ import {
   SEED_PRODUCTOS,
   SEED_EVENTOS,
   SEED_PEDIDOS,
-  SEED_INGRESOS,
   SEED_GASTOS,
   SEED_COSTOS,
   SEED_GALERIA,
   SEED_TESTIMONIOS,
 } from './data/seed';
-import type { Cliente, ProductoAdmin, EventoAdmin, Pedido, Ingreso, Gasto, Costo, GaleriaAdmin, TestimonioAdmin } from './types';
+import type { Cliente, ProductoAdmin, EventoAdmin, Pedido, Gasto, Costo, GaleriaAdmin, TestimonioAdmin } from './types';
 
 export interface AdminContextType {
   clientes: ReturnType<typeof useCrudState<Cliente>>;
   productos: ReturnType<typeof useCrudState<ProductoAdmin>>;
   eventos: ReturnType<typeof useCrudState<EventoAdmin>>;
   pedidos: ReturnType<typeof useCrudState<Pedido>>;
-  ingresos: ReturnType<typeof useCrudState<Ingreso>>;
   gastos: ReturnType<typeof useCrudState<Gasto>>;
   costos: ReturnType<typeof useCrudState<Costo>>;
   galeria: ReturnType<typeof useCrudState<GaleriaAdmin>>;
@@ -31,13 +29,12 @@ export function AdminLayout() {
   const productos = useCrudState<ProductoAdmin>(SEED_PRODUCTOS);
   const eventos = useCrudState<EventoAdmin>(SEED_EVENTOS);
   const pedidos = useCrudState<Pedido>(SEED_PEDIDOS);
-  const ingresos = useCrudState<Ingreso>(SEED_INGRESOS);
   const gastos = useCrudState<Gasto>(SEED_GASTOS);
   const costos = useCrudState<Costo>(SEED_COSTOS);
   const galeria = useCrudState<GaleriaAdmin>(SEED_GALERIA);
   const testimonios = useCrudState<TestimonioAdmin>(SEED_TESTIMONIOS);
 
-  const ctx: AdminContextType = { clientes, productos, eventos, pedidos, ingresos, gastos, costos, galeria, testimonios };
+  const ctx: AdminContextType = { clientes, productos, eventos, pedidos, gastos, costos, galeria, testimonios };
 
   return (
     <div className="flex min-h-screen bg-[#FBF8F3]">

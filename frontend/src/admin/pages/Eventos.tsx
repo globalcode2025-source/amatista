@@ -1,72 +1,79 @@
-import { useOutletContext } from 'react-router-dom';
-import type { AdminContextType } from '../AdminLayout';
-import { CrudPage } from '../components/CrudPage';
-import type { ColumnConfig } from '../components/DataTable';
-import type { FieldConfig } from '../components/FormField';
-import type { EstadoEvento, EventoAdmin } from '../types';
+import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from 'react';
+import { DataTable, type ColumnConfig } from '../components/DataTable';
+import { Modal } from '../components/Modal';
+import { FormField, type FieldConfig } from '../components/FormField';
+import type { EstadoEvento, EventoAdmin, TipoContenido } from '../types';
+import { addPagoAsistente, createAsistenteEvento, createEvento, deleteEvento, fetchAsistentesEvento, fetchEventos, resolveEventoMediaUrl, updateEvento, type AsistenteEvento } from '../../services/eventos';
+import { fetchClientes } from '../../services/clientes';
+import type { Cliente } from '../types';
 
 const ESTADOS: EstadoEvento[] = ['Próximo', 'Realizado', 'Cancelado'];
-const money = (n: number) => `$${n.toLocaleString('es-CO')}`;
+const TIPOS: TipoContenido[] = ['Imagen', 'Video'];
+const money = (value: number) => `$${value.toLocaleString('es-CO')}`;
+type EventForm = Omit<EventoAdmin, 'id' | 'media' | 'precio'> & { precio: number | ''; mediaFile: File | null; mediaPreview: string };
+type AttendeeForm = { clienteId: string; pago: number | '' };
+const EMPTY_FORM: EventForm = { nombre: '', tipo: 'Imagen', descripcion: '', fecha: '', hora: '', ubicacion: '', duracion: 180, frase: '', queTrae: '', cupos: 1, cuposDisponibles: 1, precio: '', estado: 'Próximo', mediaFile: null, mediaPreview: '' };
+const EMPTY_ATTENDEE: AttendeeForm = { clienteId: '', pago: '' };
 
 export default function EventosPage() {
-  const { eventos } = useOutletContext<AdminContextType>();
+  const [items, setItems] = useState<EventoAdmin[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editing, setEditing] = useState<EventoAdmin | null>(null);
+  const [form, setForm] = useState<EventForm>(EMPTY_FORM);
+  const [viewingEvent, setViewingEvent] = useState<EventoAdmin | null>(null);
+  const [attendees, setAttendees] = useState<AsistenteEvento[]>([]);
+  const [registrationOpen, setRegistrationOpen] = useState(false);
+  const [registrationEventId, setRegistrationEventId] = useState('');
+  const [attendeeForm, setAttendeeForm] = useState<AttendeeForm>(EMPTY_ATTENDEE);
+  const [clients, setClients] = useState<Cliente[]>([]);
+  const [clientQuery, setClientQuery] = useState('');
+  const [attendeesError, setAttendeesError] = useState('');
+  const [payingAttendee, setPayingAttendee] = useState<AsistenteEvento | null>(null);
+  const [paymentAmount, setPaymentAmount] = useState<number | ''>('');
+  const [query, setQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'Todos' | EstadoEvento>('Todos');
+  const registrationEvent = items.find((item) => item.id === registrationEventId);
+  const selectedClient = clients.find((client) => client.id === attendeeForm.clienteId);
+  const matchingClients = clients.filter((client) => `${client.nombre} ${client.telefono} ${client.email}`.toLowerCase().includes(clientQuery.toLowerCase()));
 
-  const columns: ColumnConfig<EventoAdmin>[] = [
-    { key: 'nombre', label: 'Nombre' },
-    { key: 'media', label: 'Imagen o video', render: (row) => <span className="max-w-[220px] truncate block">{row.media}</span> },
-    { key: 'descripcion', label: 'Descripción' },
-    { key: 'fecha', label: 'Fecha' },
-    { key: 'hora', label: 'Hora' },
-    { key: 'ubicacion', label: 'Ubicación' },
-    { key: 'duracion', label: 'Duración' },
-    { key: 'frase', label: 'Frase' },
-    { key: 'queTrae', label: 'Qué trae' },
-    { key: 'estado', label: 'Estado' },
-    { key: 'precio', label: 'Precio', render: (row) => money(row.precio) },
-  ];
+  const load = async () => { try { setLoading(true); setError(''); setItems(await fetchEventos()); } catch (err) { setError(err instanceof Error ? err.message : 'No se pudieron cargar los eventos'); } finally { setLoading(false); } };
+  useEffect(() => { void load(); }, []);
+  useEffect(() => () => { if (form.mediaPreview.startsWith('blob:')) URL.revokeObjectURL(form.mediaPreview); }, [form.mediaPreview]);
+  const filteredItems = useMemo(() => items.filter((item) => (statusFilter === 'Todos' || item.estado === statusFilter) && [item.nombre, item.descripcion, item.ubicacion].some((value) => value.toLowerCase().includes(query.toLowerCase()))), [items, query, statusFilter]);
 
   const fields: FieldConfig[] = [
-    { key: 'nombre', label: 'Nombre del evento', type: 'text', required: true },
-    { key: 'media', label: 'Imagen o video (URL)', type: 'text', required: true, placeholder: 'https://...' },
-    { key: 'descripcion', label: 'Descripción', type: 'textarea', required: true },
-    { key: 'fecha', label: 'Fecha', type: 'date', required: true },
-    { key: 'hora', label: 'Hora', type: 'text', required: true, placeholder: '18:00' },
-    { key: 'ubicacion', label: 'Ubicación', type: 'text', required: true },
-    { key: 'duracion', label: 'Duración (minutos)', type: 'number', required: true },
-    { key: 'frase', label: 'Frase', type: 'text', required: true },
-    { key: 'queTrae', label: 'Qué trae', type: 'textarea', required: true },
-    { key: 'cupos', label: 'Cupos', type: 'number', required: true },
-    { key: 'cuposDisponibles', label: 'Cupos disponibles', type: 'number', required: true },
-    { key: 'precio', label: 'Precio (COP)', type: 'number', required: true },
-    { key: 'estado', label: 'Estado', type: 'select', required: true, options: ESTADOS.map((e) => ({ value: e, label: e })) },
+    { key: 'nombre', label: 'Nombre del evento', type: 'text', required: true }, { key: 'frase', label: 'Frase destacada', type: 'text', required: true }, { key: 'descripcion', label: 'Descripción', type: 'textarea', required: true },
+    { key: 'fecha', label: 'Fecha', type: 'date', required: true }, { key: 'hora', label: 'Hora', type: 'time', required: true }, { key: 'ubicacion', label: 'Ubicación', type: 'text', required: true },
+    { key: 'duracion', label: 'Duración (minutos)', type: 'number', required: true }, { key: 'queTrae', label: 'Qué incluye (un elemento por línea)', type: 'textarea', required: true },
+    { key: 'cupos', label: 'Cupos totales', type: 'number', required: true }, { key: 'cuposDisponibles', label: 'Cupos disponibles', type: 'number', required: true }, { key: 'precio', label: 'Precio (COP)', type: 'number', required: true },
   ];
+  const columns: ColumnConfig<EventoAdmin>[] = [
+    { key: 'nombre', label: 'Evento' }, { key: 'media', label: 'Archivo', render: (row) => row.tipo === 'Video' ? <video src={resolveEventoMediaUrl(row.media)} className="h-12 w-16 rounded-sm object-cover" muted /> : <img src={resolveEventoMediaUrl(row.media)} alt={row.nombre} className="h-12 w-16 rounded-sm object-cover" /> },
+    { key: 'fecha', label: 'Fecha' }, { key: 'hora', label: 'Hora' }, { key: 'cuposDisponibles', label: 'Cupos libres' }, { key: 'precio', label: 'Precio', render: (row) => money(row.precio) }, { key: 'estado', label: 'Estado' },
+  ];
+  const setField = (key: string, value: unknown) => setForm((old) => ({ ...old, [key]: value } as EventForm));
+  const openNew = () => { setEditing(null); setForm(EMPTY_FORM); setModalOpen(true); };
+  const openEdit = (item: EventoAdmin) => { setEditing(item); setForm({ ...item, hora: item.hora.slice(0, 5), mediaFile: null, mediaPreview: resolveEventoMediaUrl(item.media) }); setModalOpen(true); };
+  const fileChange = (event: ChangeEvent<HTMLInputElement>) => { const mediaFile = event.target.files?.[0] ?? null; setForm((old) => ({ ...old, mediaFile, mediaPreview: mediaFile ? URL.createObjectURL(mediaFile) : editing ? resolveEventoMediaUrl(editing.media) : '' })); };
+  const submit = async (event: FormEvent) => { event.preventDefault(); try { if (!editing && !form.mediaFile) return window.alert('Selecciona una imagen o un video desde tu dispositivo.'); if (form.precio === '') return window.alert('Ingresa el precio del evento.'); if (form.cuposDisponibles > form.cupos) return window.alert('Los cupos disponibles no pueden superar los cupos totales.'); const { mediaPreview, ...input } = form; const eventInput = { ...input, precio: Number(form.precio) }; if (editing) await updateEvento(editing.id, eventInput); else await createEvento({ ...eventInput, mediaFile: form.mediaFile! }); setModalOpen(false); await load(); } catch (err) { window.alert(err instanceof Error ? err.message : 'No se pudo guardar el evento'); } };
+  const remove = async (item: EventoAdmin) => { try { await deleteEvento(item.id); await load(); } catch (err) { window.alert(err instanceof Error ? err.message : 'No se pudo eliminar el evento'); } };
+  const viewAttendees = async (item: EventoAdmin) => { setViewingEvent(item); setAttendeesError(''); try { setAttendees(await fetchAsistentesEvento(item.id)); } catch (err) { setAttendeesError(err instanceof Error ? err.message : 'No se pudieron cargar los asistentes'); } };
+  const openRegistration = async () => { const availableEvent = items.find((item) => item.estado === 'Próximo' && item.cuposDisponibles > 0); setRegistrationEventId(availableEvent?.id ?? ''); setAttendeeForm(EMPTY_ATTENDEE); setClientQuery(''); setAttendeesError(''); setRegistrationOpen(true); try { setClients(await fetchClientes()); } catch (err) { setAttendeesError(err instanceof Error ? err.message : 'No se pudieron cargar los clientes'); } };
+  const registerAttendee = async (event: FormEvent) => { event.preventDefault(); if (!registrationEvent || !attendeeForm.clienteId) return; try { await createAsistenteEvento(registrationEvent.id, { clienteId: attendeeForm.clienteId, pago: attendeeForm.pago === '' ? 0 : attendeeForm.pago }); setRegistrationOpen(false); await load(); } catch (err) { setAttendeesError(err instanceof Error ? err.message : 'No se pudo registrar el asistente'); } };
+  const openPayment = (attendee: AsistenteEvento) => { setPayingAttendee(attendee); setPaymentAmount(attendee.debe); setAttendeesError(''); };
+  const savePayment = async (event: FormEvent) => { event.preventDefault(); if (!viewingEvent || !payingAttendee || paymentAmount === '') return; try { const updated = await addPagoAsistente(viewingEvent.id, payingAttendee.id, Number(paymentAmount)); setAttendees((old) => old.map((item) => item.id === updated.id ? updated : item)); setPayingAttendee(null); } catch (err) { setAttendeesError(err instanceof Error ? err.message : 'No se pudo registrar el pago'); } };
 
-  return (
-    <CrudPage<EventoAdmin>
-      title="Eventos"
-      singular="Evento"
-      items={eventos.items}
-      columns={columns}
-      fields={fields}
-      searchKeys={['nombre', 'ubicacion', 'fecha']}
-      emptyItem={{
-        nombre: '',
-        media: '',
-        descripcion: '',
-        fecha: '',
-        hora: '',
-        ubicacion: '',
-        duracion: 0,
-        frase: '',
-        queTrae: '',
-        cupos: 0,
-        cuposDisponibles: 0,
-        precio: 0,
-        estado: 'Próximo',
-      }}
-      onAdd={eventos.add}
-      onUpdate={eventos.update}
-      onDelete={eventos.remove}
-    />
-  );
+  return <div>
+    <div className="mb-6 flex flex-wrap items-center justify-between gap-4"><div><h1 className="font-serif text-2xl font-semibold text-ink">Eventos</h1><p className="text-sm text-ink/55">{items.length} en total</p></div><div className="flex gap-3"><button type="button" onClick={openRegistration} className="rounded-sm border border-amatista-deep px-5 py-2.5 text-sm text-amatista-deep hover:bg-amatista-deep hover:text-cream">+ Asistente</button><button type="button" onClick={openNew} className="rounded-sm bg-amatista-deep px-5 py-2.5 text-sm text-cream hover:bg-amatista-mid">+ Nuevo evento</button></div></div><div className="mb-5 flex flex-wrap gap-3"><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar eventos..." className="rounded-sm border border-ink/15 px-4 py-2.5 text-sm focus:border-gold focus:outline-none"/><div className="flex flex-wrap gap-2">{(['Todos', ...ESTADOS] as const).map((state) => <button type="button" key={state} onClick={() => setStatusFilter(state)} className={`rounded-full border px-4 py-2 text-xs ${statusFilter === state ? 'border-amatista-deep bg-amatista-deep text-cream' : 'border-ink/15 text-ink/60 hover:border-gold'}`}>{state}</button>)}</div></div>
+    <p className="mb-4 text-sm text-ink/55">Carga una única imagen o video desde tu computador o celular. No se usan URL.</p>
+    {loading && <p className="rounded-sm border border-ink/10 bg-white px-4 py-3 text-sm text-ink/55">Cargando eventos...</p>}{!loading && error && <p className="rounded-sm border border-danger/20 bg-danger/5 px-4 py-3 text-sm text-danger">{error}</p>}{!loading && !error && <DataTable columns={columns} rows={filteredItems} onEdit={openEdit} onDelete={remove} onView={viewAttendees} />}
+    <Modal open={modalOpen} title={editing ? 'Actualizar evento' : 'Agregar evento'} onClose={() => setModalOpen(false)}><form onSubmit={submit} className="flex flex-col gap-4">{fields.slice(0, 2).map((field) => <FormField key={field.key} field={field} value={(form as any)[field.key]} onChange={setField} />)}<label className="block"><span className="mb-1.5 block text-xs uppercase tracking-wide text-ink/55">Tipo de archivo</span><select value={form.tipo} onChange={(e) => setForm((old) => ({ ...old, tipo: e.target.value as TipoContenido }))} className="w-full rounded-sm border border-ink/15 bg-white px-3.5 py-2.5 text-sm">{TIPOS.map((tipo) => <option key={tipo}>{tipo}</option>)}</select></label><label className="block"><span className="mb-1.5 block text-xs uppercase tracking-wide text-ink/55">Imagen o video</span><input type="file" required={!editing} accept={form.tipo === 'Video' ? 'video/*' : 'image/*'} onChange={fileChange} className="w-full rounded-sm border border-ink/15 bg-white px-3.5 py-2.5 text-sm" /></label>{form.mediaPreview && (form.tipo === 'Video' ? <video src={form.mediaPreview} controls className="h-56 w-full object-cover" /> : <img src={form.mediaPreview} alt="Vista previa" className="h-56 w-full object-cover" />)}{fields.slice(2).map((field) => <FormField key={field.key} field={field} value={(form as any)[field.key]} onChange={setField} />)}{editing && <FormField field={{ key: 'estado', label: 'Estado', type: 'select', required: true, options: ESTADOS.map((estado) => ({ value: estado, label: estado })) }} value={form.estado} onChange={setField} />}<div className="flex justify-end gap-3"><button type="button" onClick={() => setModalOpen(false)} className="px-5 py-2.5 text-sm text-ink/60">Cancelar</button><button className="rounded-sm bg-gold px-6 py-2.5 text-sm text-ink">Guardar</button></div></form></Modal>
+    <Modal open={Boolean(viewingEvent)} title={viewingEvent ? `Asistentes · ${viewingEvent.nombre}` : 'Asistentes'} onClose={() => setViewingEvent(null)}><AttendeeTable attendees={attendees} error={attendeesError} onPay={openPayment} /></Modal>
+    <Modal open={registrationOpen} title="Registrar asistente" onClose={() => setRegistrationOpen(false)}><form onSubmit={registerAttendee} className="flex flex-col gap-4"><label className="block"><span className="mb-1.5 block text-xs uppercase tracking-wide text-ink/55">Evento</span><select required value={registrationEventId} onChange={(e) => setRegistrationEventId(e.target.value)} className="w-full rounded-sm border border-ink/15 bg-white px-3.5 py-2.5 text-sm"><option value="" disabled>Selecciona un evento...</option>{items.filter((item) => item.estado === 'Próximo' && item.cuposDisponibles > 0).map((item) => <option key={item.id} value={item.id}>{item.nombre}</option>)}</select></label><label className="block"><span className="mb-1.5 block text-xs uppercase tracking-wide text-ink/55">Buscar cliente</span><input value={clientQuery} onChange={(e) => { setClientQuery(e.target.value); setAttendeeForm((old) => ({ ...old, clienteId: '' })); }} placeholder="Nombre, teléfono o correo" className="w-full rounded-sm border border-ink/15 px-3.5 py-2.5 text-sm" /></label>{clientQuery && !selectedClient && <div className="max-h-40 overflow-y-auto rounded-sm border border-ink/10 bg-white">{matchingClients.length === 0 ? <p className="px-3 py-2 text-sm text-ink/55">No hay clientes coincidentes.</p> : matchingClients.map((client) => <button key={client.id} type="button" onClick={() => { setAttendeeForm((old) => ({ ...old, clienteId: client.id })); setClientQuery(client.nombre); }} className="block w-full border-b border-ink/10 px-3 py-2 text-left text-sm hover:bg-cream/60"><strong>{client.nombre}</strong><span className="block text-xs text-ink/55">{client.telefono} · {client.email}</span></button>)}</div>}{selectedClient && <p className="rounded-sm bg-cream px-3 py-2 text-sm text-ink">Cliente seleccionado: <strong>{selectedClient.nombre}</strong></p>}{attendeesError && <p className="text-sm text-danger">{attendeesError}</p>}<input min="0" max={registrationEvent?.precio} required type="number" value={attendeeForm.pago} onChange={(e) => setAttendeeForm((old) => ({ ...old, pago: e.target.value === '' ? '' : Number(e.target.value) }))} placeholder="Cuánto pagó (COP)" className="rounded-sm border border-ink/15 px-3.5 py-2.5 text-sm" /><button disabled={!registrationEvent || !selectedClient} className="self-end rounded-sm bg-gold px-6 py-2.5 text-sm text-ink disabled:cursor-not-allowed disabled:opacity-50">Registrar asistente</button></form></Modal>
+    <Modal open={Boolean(payingAttendee)} title={payingAttendee ? `Registrar pago · ${payingAttendee.nombreCompleto}` : 'Registrar pago'} onClose={() => setPayingAttendee(null)}><form onSubmit={savePayment} className="flex flex-col gap-4">{payingAttendee && <p className="rounded-sm bg-cream px-3 py-2.5 text-sm text-ink">Saldo pendiente: <strong>{money(payingAttendee.debe)}</strong></p>}<label className="block"><span className="mb-1.5 block text-xs uppercase tracking-wide text-ink/55">Pago (COP)</span><input required min="1" max={payingAttendee?.debe} type="number" value={paymentAmount} onChange={(e) => setPaymentAmount(e.target.value === '' ? '' : Number(e.target.value))} className="w-full rounded-sm border border-ink/15 px-3.5 py-2.5 text-sm" /></label><div className="flex justify-end gap-3"><button type="button" onClick={() => setPayingAttendee(null)} className="px-5 py-2.5 text-sm text-ink/60">Cancelar</button><button type="submit" className="rounded-sm bg-gold px-6 py-2.5 text-sm text-ink">Guardar pago</button></div></form></Modal>
+  </div>;
 }
+
+function AttendeeTable({ attendees, error, onPay }: { attendees: AsistenteEvento[]; error: string; onPay: (attendee: AsistenteEvento) => void }) { return <>{error && <p className="mb-4 text-sm text-danger">{error}</p>}<div className="overflow-x-auto rounded-sm border border-ink/10"><table className="w-full min-w-[730px] text-left text-sm"><thead className="bg-cream/70 text-xs uppercase text-ink/55"><tr><th className="px-3 py-3">Nombre</th><th className="px-3 py-3">Teléfono</th><th className="px-3 py-3">Correo</th><th className="px-3 py-3">Pagó</th><th className="px-3 py-3">Debe</th><th className="px-3 py-3">Estado</th><th className="px-3 py-3">Pago</th></tr></thead><tbody>{attendees.length === 0 ? <tr><td colSpan={7} className="px-3 py-5 text-center text-ink/50">Aún no hay asistentes registrados.</td></tr> : attendees.map((item) => <tr key={item.id} className="border-t border-ink/10"><td className="px-3 py-3">{item.nombreCompleto}</td><td className="px-3 py-3">{item.telefono}</td><td className="px-3 py-3">{item.email}</td><td className="px-3 py-3">{money(item.pago)}</td><td className="px-3 py-3">{money(item.debe)}</td><td className="px-3 py-3">{item.estado}</td><td className="px-3 py-3">{item.estado === 'Pendiente' && <button type="button" onClick={() => onPay(item)} title="Registrar pago" aria-label={`Registrar pago de ${item.nombreCompleto}`} className="rounded-sm p-1.5 text-amatista-mid hover:bg-cream hover:text-amatista-deep"><svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 fill-none stroke-current stroke-2"><rect x="3" y="6" width="18" height="12" rx="2" /><path d="M3 10h18M16 14h2" /></svg></button>}</td></tr>)}</tbody></table></div></>; }

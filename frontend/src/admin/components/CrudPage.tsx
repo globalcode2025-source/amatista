@@ -36,6 +36,7 @@ export function CrudPage<T extends { id: string }>({
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<T | null>(null);
   const [formData, setFormData] = useState<Record<string, any>>({});
+  const [success, setSuccess] = useState('');
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -55,11 +56,7 @@ export function CrudPage<T extends { id: string }>({
     setModalOpen(true);
   };
 
-  const handleDelete = (row: T) => {
-    if (window.confirm(`¿Eliminar este ${singular.toLowerCase()}? Esta acción no se puede deshacer.`)) {
-      onDelete(row.id);
-    }
-  };
+  const handleDelete = (row: T) => onDelete(row.id);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -67,9 +64,11 @@ export function CrudPage<T extends { id: string }>({
       window.alert(`Solo puedes registrar hasta ${maxItems} ${singular.toLowerCase()}s.`);
       return;
     }
+    const wasEditing = Boolean(editing);
     if (editing) onUpdate(editing.id, formData as Partial<T>);
     else onAdd(formData as Omit<T, 'id'>);
     setModalOpen(false);
+    setSuccess(`${singular} ${wasEditing ? 'actualizado' : 'guardado'} correctamente.`);
   };
 
   const addDisabled = typeof maxItems === 'number' && items.length >= maxItems;
@@ -109,6 +108,12 @@ export function CrudPage<T extends { id: string }>({
         </p>
       )}
 
+      {success && (
+        <p role="status" className="mb-4 rounded-sm border border-success/25 bg-success/10 px-4 py-3 text-sm text-success">
+          {success}
+        </p>
+      )}
+
       <DataTable columns={columns} rows={filtered} onEdit={openEdit} onDelete={handleDelete} />
 
       <Modal open={modalOpen} title={editing ? `Editar ${singular}` : `Nuevo ${singular}`} onClose={() => setModalOpen(false)}>
@@ -121,7 +126,7 @@ export function CrudPage<T extends { id: string }>({
               onChange={(key, value) => setFormData((prev) => ({ ...prev, [key]: value }))}
             />
           ))}
-          <div className="mt-2 flex justify-end gap-3">
+          <div className="mt-2 flex justify-center gap-3">
             <button type="button" onClick={() => setModalOpen(false)} className="px-5 py-2.5 text-sm text-ink/60 hover:text-ink">
               Cancelar
             </button>
