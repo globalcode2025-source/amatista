@@ -2,7 +2,7 @@ import type { CostoProduccion, MaterialCosto } from '../admin/types';
 import { apiUrl } from './api';
 
 const BASE_URL = apiUrl('/api/costos');
-export type CostoProduccionInput = { productoId: string; cantidadProducida: number; materiales: Omit<MaterialCosto, 'id' | 'proveedorNombre'>[] };
+export type CostoProduccionInput = { productoId: string; tipo?: string; cantidadProducida: number; materiales: Omit<MaterialCosto, 'id' | 'proveedorNombre'>[] };
 
 async function request(url: string, init?: RequestInit) {
   const response = await fetch(url, init);

@@ -5,8 +5,9 @@ import { Modal } from '../components/Modal';
 import type { Gasto } from '../types';
 import { createGasto, deleteGasto, fetchGastos, updateGasto } from '../../services/gastos';
 
-const EMPTY_FORM: Omit<Gasto, 'id'> = { fecha: '', concepto: '', categoria: 'Otro', monto: 0 };
-const CATEGORIAS = ['Transporte', 'Comida', 'Papelería', 'Servicio', 'Operativo', 'Otro'] as const;
+const EMPTY_FORM: Omit<Gasto, 'id'> = { fecha: '', concepto: '', categoria: 'Otro', tipo: 'General', monto: 0 };
+const CATEGORIAS = ['Transporte', 'Comida', 'Papelería', 'Operativo', 'Otro'] as const;
+const TIPOS = ['Evento', 'Producto', 'General'] as const;
 const money = (value: number) => `$${value.toLocaleString('es-CO')}`;
 
 export default function GastosPage() {
@@ -32,14 +33,22 @@ export default function GastosPage() {
   }, [items, query]);
 
   const columns: ColumnConfig<Gasto>[] = [
-    { key: 'fecha', label: 'Fecha' }, { key: 'concepto', label: 'Concepto' }, { key: 'categoria', label: 'Categoría' }, { key: 'monto', label: 'Monto', render: (item) => money(item.monto) },
+    { key: 'fecha', label: 'Fecha' }, 
+    { key: 'concepto', label: 'Concepto' }, 
+    { key: 'categoria', label: 'Categoría' },
+    { key: 'tipo', label: 'Tipo' },
+    { key: 'monto', label: 'Monto', render: (item) => money(item.monto) },
   ];
   const fields: FieldConfig[] = [
-    { key: 'fecha', label: 'Fecha', type: 'date', required: true }, { key: 'concepto', label: 'Concepto', type: 'text', required: true }, { key: 'categoria', label: 'Categoría', type: 'select', required: true, options: CATEGORIAS.map((categoria) => ({ value: categoria, label: categoria })) }, { key: 'monto', label: 'Monto (COP)', type: 'number', required: true },
+    { key: 'fecha', label: 'Fecha', type: 'date', required: true }, 
+    { key: 'concepto', label: 'Concepto', type: 'text', required: true }, 
+    { key: 'categoria', label: 'Categoría', type: 'select', required: true, options: CATEGORIAS.map((categoria) => ({ value: categoria, label: categoria })) },
+    { key: 'tipo', label: 'Tipo', type: 'select', required: true, options: TIPOS.map((tipo) => ({ value: tipo, label: tipo })) },
+    { key: 'monto', label: 'Monto (COP)', type: 'number', required: true },
   ];
 
   const openNew = () => { setEditing(null); setForm(EMPTY_FORM); setModalOpen(true); };
-  const openEdit = (item: Gasto) => { setEditing(item); setForm({ fecha: item.fecha, concepto: item.concepto, categoria: item.categoria, monto: item.monto }); setModalOpen(true); };
+  const openEdit = (item: Gasto) => { setEditing(item); setForm({ fecha: item.fecha, concepto: item.concepto, categoria: item.categoria, tipo: item.tipo, monto: item.monto }); setModalOpen(true); };
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     try {

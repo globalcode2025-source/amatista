@@ -5,7 +5,7 @@ import Catalogo from './pages/catalogo';
 import Login from './pages/login';
 import AdminLayout from './admin/AdminLayout';
 import Dashboard from './admin/pages/Dashboard';
-import Pedidos from './admin/pages/Pedidos';
+import Pedidos from './admin/pages/Pedidos'; //VENTAS
 import Clientes from './admin/pages/Clientes';
 import Productos from './admin/pages/Productos';
 import Eventos from './admin/pages/Eventos';
@@ -14,14 +14,27 @@ import Testimonios from './admin/pages/Testimonios';
 import Gastos from './admin/pages/Gastos';
 import Costos from './admin/pages/Costos';
 import Proveedores from './admin/pages/Proveedores';
+import Cuidados from './admin/pages/Cuidados';
+import Suscriptores from './admin/pages/Suscriptores';
 
 function ScrollToHash() {
   const { hash, pathname } = useLocation();
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
-      if (!hash) { window.scrollTo({ top: 0, behavior: 'auto' }); return; }
-      document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: 'auto', block: 'start' });
+      if (!hash) { 
+        // Si no hay hash, hacer scroll al inicio (header)
+        window.scrollTo({ top: 0, behavior: 'auto' }); 
+        return; 
+      }
+      // Si hay hash, scroll a la sección correspondiente
+      const element = document.getElementById(hash.slice(1));
+      if (element) {
+        // Pequeño delay para asegurar que el DOM está listo
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'auto', block: 'start' });
+        }, 100);
+      }
     });
     return () => window.cancelAnimationFrame(frame);
   }, [hash, pathname]);
@@ -41,7 +54,7 @@ export default function App() {
         
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Dashboard />} />
-          <Route path="ventas" element={<Pedidos />} />
+          <Route path="ventas" element={<Pedidos />} /> //VENTAS
           <Route path="clientes" element={<Clientes />} />
           <Route path="productos" element={<Productos />} />
           <Route path="eventos" element={<Eventos />} />
@@ -50,6 +63,8 @@ export default function App() {
           <Route path="gastos" element={<Gastos />} />
           <Route path="costos" element={<Costos />} />
           <Route path="proveedores" element={<Proveedores />} />
+          <Route path="cuidados" element={<Cuidados />} />
+          <Route path="suscriptores" element={<Suscriptores />} />
         </Route>
       </Routes>
     </BrowserRouter>

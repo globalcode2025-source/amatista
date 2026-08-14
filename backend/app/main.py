@@ -13,11 +13,14 @@ from app.routers.testimonios import router as testimonios_router
 from app.routers.gastos import router as gastos_router
 from app.routers.proveedores import router as proveedores_router
 from app.routers.costos import router as costos_router
+from app.routers.cuidados import router as cuidados_router
+from app.routers.categorias import router as categorias_router
+from app.routers.suscriptores import router as suscriptores_router
 
 app = FastAPI(title="Amatista API")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:5174", "http://127.0.0.1:5174"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -41,6 +44,9 @@ app.include_router(testimonios_router, prefix="/api")
 app.include_router(gastos_router, prefix="/api")
 app.include_router(proveedores_router, prefix="/api")
 app.include_router(costos_router, prefix="/api")
+app.include_router(cuidados_router, prefix="/api")
+app.include_router(categorias_router, prefix="/api")
+app.include_router(suscriptores_router, prefix="/api")
 
 
 @app.get("/health")

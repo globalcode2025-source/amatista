@@ -1,15 +1,27 @@
 import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
+import { createSuscriptor } from '../services/suscriptores';
 
 export function Footer() {
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!email) return;
-    // Aquí se conecta con el servicio de newsletter real (Mailchimp, backend propio, etc.)
-    setSent(true);
+    
+    try {
+      setLoading(true);
+      await createSuscriptor({ correo: email });
+      setSent(true);
+      setEmail('');
+    } catch (err) {
+      console.error('Error al suscribir:', err);
+      alert('Hubo un error al suscribirte. Por favor intenta nuevamente.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -108,10 +120,15 @@ export function Footer() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Tu correo"
-                  className="flex-1 bg-transparent text-sm text-cream placeholder:text-cream/40 focus:outline-none"
+                  disabled={loading}
+                  className="flex-1 bg-transparent text-sm text-cream placeholder:text-cream/40 focus:outline-none disabled:opacity-50"
                 />
-                <button type="submit" className="text-[0.85rem] uppercase tracking-[0.05em] text-gold-light">
-                  Enviar
+                <button 
+                  type="submit" 
+                  disabled={loading}
+                  className="text-[0.85rem] uppercase tracking-[0.05em] text-gold-light disabled:opacity-50"
+                >
+                  {loading ? 'Enviando...' : 'Enviar'}
                 </button>
               </form>
             )}

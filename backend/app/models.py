@@ -23,6 +23,21 @@ class Cliente(Base):
     asistencias: Mapped[list[AsistenteEvento]] = relationship(foreign_keys="AsistenteEvento.cliente_id")
 
 
+class Categoria(Base):
+    __tablename__ = "categorias"
+
+    id: Mapped[str] = mapped_column(String(40), primary_key=True)
+    nombre: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
+
+
+class Suscriptor(Base):
+    __tablename__ = "suscriptores"
+
+    id: Mapped[str] = mapped_column(String(40), primary_key=True)
+    correo: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    fecha: Mapped[date] = mapped_column(Date, nullable=False)
+
+
 class Producto(Base):
     __tablename__ = "productos"
 
@@ -83,6 +98,7 @@ class Pedido(Base):
 
     cliente: Mapped[Cliente] = relationship(back_populates="pedidos")
     lineas: Mapped[list[LineaVenta]] = relationship(back_populates="pedido", cascade="all, delete-orphan")
+    pagos: Mapped[list[PagoVenta]] = relationship(back_populates="pedido", cascade="all, delete-orphan")
 
 
 class LineaVenta(Base):
@@ -97,6 +113,18 @@ class LineaVenta(Base):
 
     pedido: Mapped[Pedido] = relationship(back_populates="lineas")
     producto: Mapped[Producto] = relationship(back_populates="lineas_venta")
+
+
+class PagoVenta(Base):
+    __tablename__ = "pagos_venta"
+
+    id: Mapped[str] = mapped_column(String(40), primary_key=True)
+    pedido_id: Mapped[str] = mapped_column(ForeignKey("pedidos.id", ondelete="CASCADE"), nullable=False, index=True)
+    codigo: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
+    fecha: Mapped[date] = mapped_column(Date, nullable=False)
+    monto: Mapped[float] = mapped_column(Float, nullable=False)
+
+    pedido: Mapped[Pedido] = relationship(back_populates="pagos")
 
 
 class Galeria(Base):
@@ -126,6 +154,7 @@ class Gasto(Base):
     fecha: Mapped[date] = mapped_column(Date, nullable=False)
     concepto: Mapped[str] = mapped_column(String(150), nullable=False)
     categoria: Mapped[str] = mapped_column(String(100), nullable=False)
+    tipo: Mapped[str] = mapped_column(String(20), nullable=False, default='General')
     proveedor: Mapped[str | None] = mapped_column(String(150))
     monto: Mapped[float] = mapped_column(Float, nullable=False)
 
@@ -145,7 +174,8 @@ class CostoProduccion(Base):
     __tablename__ = "costos_produccion"
 
     id: Mapped[str] = mapped_column(String(40), primary_key=True)
-    producto_id: Mapped[str] = mapped_column(ForeignKey("productos.id"), nullable=False, index=True)
+    producto_id: Mapped[str] = mapped_column(ForeignKey("productos.id", ondelete="SET NULL"), nullable=True, index=True)
+    tipo: Mapped[str] = mapped_column(String(20), nullable=False, default='producto')  # 'producto' o 'taller'
     fecha: Mapped[date] = mapped_column(Date, nullable=False)
     cantidad_producida: Mapped[int] = mapped_column(Integer, nullable=False)
 
@@ -176,3 +206,12 @@ class Costo(Base):
     cantidad: Mapped[str] = mapped_column(String(80), nullable=False)
     costoUnitario: Mapped[float] = mapped_column(Float, nullable=False)
     costoTotal: Mapped[float] = mapped_column(Float, nullable=False)
+
+
+class Cuidado(Base):
+    __tablename__ = "cuidados"
+
+    id: Mapped[str] = mapped_column(String(40), primary_key=True)
+    pregunta: Mapped[str] = mapped_column(String(300), nullable=False)
+    respuesta: Mapped[str] = mapped_column(Text, nullable=False)
+    orden: Mapped[int] = mapped_column(Integer, nullable=False, default=0)

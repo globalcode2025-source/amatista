@@ -15,8 +15,10 @@ interface DataTableProps<T extends { id: string }> {
   onEdit: (row: T) => void;
   onDelete: (row: T) => void;
   onView?: (row: T) => void;
+  viewLabel?: string;
   whatsappUrl?: (row: T) => string | null;
   onRowDoubleClick?: (row: T) => void;
+  onPayment?: (row: T) => void;
   emptyLabel?: string;
 }
 
@@ -26,7 +28,7 @@ const defaultWhatsappUrl = (row: { id: string }) => {
   return `https://wa.me/${phone.length === 10 && phone.startsWith('3') ? `57${phone}` : phone}`;
 };
 
-export function DataTable<T extends { id: string }>({ columns, rows, onEdit, onDelete, onView, whatsappUrl = defaultWhatsappUrl, onRowDoubleClick, emptyLabel }: DataTableProps<T>) {
+export function DataTable<T extends { id: string }>({ columns, rows, onEdit, onDelete, onView, viewLabel = 'Ver detalles', whatsappUrl = defaultWhatsappUrl, onRowDoubleClick, onPayment, emptyLabel }: DataTableProps<T>) {
   const [pendingDelete, setPendingDelete] = useState<T | null>(null);
   if (rows.length === 0) {
     return (
@@ -42,7 +44,7 @@ export function DataTable<T extends { id: string }>({ columns, rows, onEdit, onD
         <thead>
           <tr className="border-b border-ink/10 bg-cream/70 text-left">
             {columns.map((c) => (
-              <th key={c.key} className="whitespace-nowrap px-5 py-3.5 text-[0.72rem] uppercase tracking-wide text-ink/55">
+              <th key={c.key} className={`whitespace-nowrap px-5 py-3.5 text-[0.72rem] uppercase tracking-wide text-ink/55 ${c.className ?? ''}`}>
                 {c.label}
               </th>
             ))}
@@ -59,8 +61,19 @@ export function DataTable<T extends { id: string }>({ columns, rows, onEdit, onD
               ))}
               <td className="whitespace-nowrap px-5 py-4 text-right">
                 {onView && (
-                  <button type="button" onClick={() => onView(row)} aria-label={`Ver asistentes de ${(row as any).nombre ?? 'este evento'}`} title="Ver asistentes" className="mr-4 align-middle text-amatista-mid hover:text-amatista-deep">
-                    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-none stroke-current stroke-2"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" /><circle cx="12" cy="12" r="2.5" /></svg>
+                  <button type="button" onClick={() => onView(row)} aria-label={viewLabel} title={viewLabel} className="mr-4 align-middle text-amatista-mid hover:text-amatista-deep">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-none stroke-current stroke-2"><rect x="3" y="6" width="18" height="12" rx="2" /><path d="M3 10h18M16 14h2" /></svg>
+                  </button>
+                )}
+                {onPayment && (
+                  <button
+                    type="button"
+                    onClick={() => onPayment(row)}
+                    aria-label="Ver pagos"
+                    title="Ver pagos"
+                    className="mr-4 align-middle text-success hover:text-success/80"
+                  >
+                    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-none stroke-current stroke-2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                   </button>
                 )}
                 <button

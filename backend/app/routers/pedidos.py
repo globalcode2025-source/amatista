@@ -8,16 +8,19 @@ from sqlalchemy.orm import Session, selectinload
 
 from app import models
 from app.database import get_db
-from app.schemas import LineaVentaInput, LineaVentaRead, PedidoCreate, PedidoRead, PedidoUpdate
+from app.schemas import LineaVentaInput, LineaVentaRead, PagoVentaCreate, PagoVentaRead, PedidoCreate, PedidoRead, PedidoUpdate
 
 router = APIRouter(prefix="/pedidos", tags=["Ventas"])
 
 
 def serialize(pedido: models.Pedido) -> PedidoRead:
+    total_pagado = sum(pago.monto for pago in pedido.pagos)
+    debe = max(pedido.total - total_pagado, 0)
     return PedidoRead(
         id=pedido.id, clienteId=pedido.cliente_id, codigo=pedido.codigo, fecha=pedido.fecha,
         formaPago=pedido.formaPago, direccionEnvio=pedido.direccionEnvio,
-        total=pedido.total, notas=pedido.notas,
+        total=pedido.total, notas=pedido.notas, totalPagado=total_pagado, debe=debe,
+        estado="Completado" if debe < 0.005 else "Pendiente",
         productos=[LineaVentaRead(productoId=linea.producto_id, nombre=linea.producto.nombre, precioUnitario=linea.precio_unitario, cantidad=linea.cantidad, subtotal=linea.subtotal) for linea in pedido.lineas],
     )
 
@@ -63,9 +66,25 @@ def replace_lines(pedido: models.Pedido, items: list[LineaVentaInput], db: Sessi
     pedido.total = total
 
 
+def payment_code() -> str:
+    return f"PAG-{datetime.now().strftime('%Y%m%d')}-{str(uuid4())[:6].upper()}"
+
+
+def add_payment(pedido: models.Pedido, monto: float) -> models.PagoVenta:
+    total_pagado = sum(pago.monto for pago in pedido.pagos)
+    saldo = pedido.total - total_pagado
+    if monto <= 0:
+        raise HTTPException(422, "El pago debe ser mayor que $0.")
+    if monto > saldo + 0.005:
+        raise HTTPException(422, "El pago no puede superar el saldo pendiente.")
+    pago = models.PagoVenta(id=str(uuid4()), pedido_id=pedido.id, codigo=payment_code(), fecha=date.today(), monto=monto)
+    pedido.pagos.append(pago)
+    return pago
+
+
 @router.get("", response_model=list[PedidoRead])
 def list_pedidos(q: str | None = Query(None), db: Session = Depends(get_db)):
-    stmt = select(models.Pedido).options(selectinload(models.Pedido.lineas).selectinload(models.LineaVenta.producto)).order_by(models.Pedido.fecha.desc(), models.Pedido.codigo.desc())
+    stmt = select(models.Pedido).options(selectinload(models.Pedido.lineas).selectinload(models.LineaVenta.producto), selectinload(models.Pedido.pagos)).order_by(models.Pedido.fecha.desc(), models.Pedido.codigo.desc())
     if q and q.strip():
         term = f"%{q.strip()}%"
         stmt = stmt.where(models.Pedido.codigo.ilike(term))
@@ -84,27 +103,49 @@ def create_pedido(payload: PedidoCreate, db: Session = Depends(get_db)):
     db.add(pedido)
     db.flush()
     replace_lines(pedido, payload.productos, db)
+    if payload.pagoInicial:
+        add_payment(pedido, payload.pagoInicial)
     db.commit()
     db.refresh(pedido)
-    pedido = db.scalar(select(models.Pedido).options(selectinload(models.Pedido.lineas).selectinload(models.LineaVenta.producto)).where(models.Pedido.id == pedido.id))
+    pedido = db.scalar(select(models.Pedido).options(selectinload(models.Pedido.lineas).selectinload(models.LineaVenta.producto), selectinload(models.Pedido.pagos)).where(models.Pedido.id == pedido.id))
     return serialize(pedido)
 
 
 @router.patch("/{pedido_id}", response_model=PedidoRead)
 def update_pedido(pedido_id: str, payload: PedidoUpdate, db: Session = Depends(get_db)):
-    pedido = db.scalar(select(models.Pedido).options(selectinload(models.Pedido.lineas).selectinload(models.LineaVenta.producto)).where(models.Pedido.id == pedido_id))
+    pedido = db.scalar(select(models.Pedido).options(selectinload(models.Pedido.lineas).selectinload(models.LineaVenta.producto), selectinload(models.Pedido.pagos)).where(models.Pedido.id == pedido_id))
     if not pedido:
         raise HTTPException(404, "Venta no encontrada")
     if payload.clienteId and not db.get(models.Cliente, payload.clienteId):
         raise HTTPException(404, "Cliente no encontrado")
     if payload.productos is not None:
         replace_lines(pedido, payload.productos, db)
+        if pedido.total + 0.005 < sum(pago.monto for pago in pedido.pagos):
+            raise HTTPException(422, "El total de la venta no puede ser menor que lo ya pagado.")
     for key, value in payload.model_dump(exclude_unset=True, exclude={"productos"}).items():
         setattr(pedido, "cliente_id" if key == "clienteId" else key, value)
     db.commit()
     db.refresh(pedido)
-    pedido = db.scalar(select(models.Pedido).options(selectinload(models.Pedido.lineas).selectinload(models.LineaVenta.producto)).where(models.Pedido.id == pedido_id))
+    pedido = db.scalar(select(models.Pedido).options(selectinload(models.Pedido.lineas).selectinload(models.LineaVenta.producto), selectinload(models.Pedido.pagos)).where(models.Pedido.id == pedido_id))
     return serialize(pedido)
+
+
+@router.get("/{pedido_id}/pagos", response_model=list[PagoVentaRead])
+def list_pagos(pedido_id: str, db: Session = Depends(get_db)) -> list[models.PagoVenta]:
+    if not db.get(models.Pedido, pedido_id):
+        raise HTTPException(404, "Venta no encontrada")
+    return db.scalars(select(models.PagoVenta).where(models.PagoVenta.pedido_id == pedido_id).order_by(models.PagoVenta.fecha.desc(), models.PagoVenta.codigo.desc())).all()
+
+
+@router.post("/{pedido_id}/pagos", response_model=PagoVentaRead, status_code=status.HTTP_201_CREATED)
+def create_pago(pedido_id: str, payload: PagoVentaCreate, db: Session = Depends(get_db)) -> models.PagoVenta:
+    pedido = db.scalar(select(models.Pedido).options(selectinload(models.Pedido.pagos)).where(models.Pedido.id == pedido_id))
+    if not pedido:
+        raise HTTPException(404, "Venta no encontrada")
+    pago = add_payment(pedido, payload.monto)
+    db.commit()
+    db.refresh(pago)
+    return pago
 
 
 @router.delete("/{pedido_id}", status_code=status.HTTP_204_NO_CONTENT)

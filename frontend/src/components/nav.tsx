@@ -66,6 +66,12 @@ export function Nav({ links = DEFAULT_LINKS, ctaLabel = 'Reservar taller', ctaHr
               ) : (
                 <Link
                   to={link.href}
+                  onClick={() => {
+                    // Forzar scroll al inicio al hacer click en Inicio
+                    if (link.href === '/#inicio') {
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                  }}
                   className={`group relative text-[0.86rem] uppercase tracking-[0.06em] opacity-85 transition-colors duration-500 hover:opacity-100 ${textColor}`}
                 >
                   {link.label}

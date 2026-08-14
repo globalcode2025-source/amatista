@@ -8,6 +8,17 @@ export interface Cliente {
   notas?: string;
 }
 
+export interface Suscriptor {
+  id: string;
+  correo: string;
+  fecha: string;
+}
+
+export interface Categoria {
+  id: string;
+  nombre: string;
+}
+
 export interface ProductoAdmin {
   id: string;
   nombre: string;
@@ -54,8 +65,18 @@ export interface Pedido {
   formaPago: string;
   direccionEnvio: string;
   total: number;
+  totalPagado: number;
+  debe: number;
+  estado: 'Pendiente' | 'Completado';
   notas?: string;
   productos: LineaVenta[];
+}
+
+export interface PagoVenta {
+  id: string;
+  codigo: string;
+  fecha: string;
+  monto: number;
 }
 
 export type TipoContenido = 'Imagen' | 'Video';
@@ -87,13 +108,15 @@ export interface Ingreso {
   metodoPago: string;
 }
 
-export type CategoriaGasto = 'Transporte' | 'Comida' | 'Papelería' | 'Servicio' | 'Operativo' | 'Otro';
+export type CategoriaGasto = 'Transporte' | 'Comida' | 'Papelería'  | 'Operativo' | 'Otro';
+export type TipoGasto = 'Evento' | 'Producto' | 'General';
 
 export interface Gasto {
   id: string;
   fecha: string;
   concepto: string;
   categoria: CategoriaGasto;
+  tipo: TipoGasto;
   monto: number;
 }
 
@@ -126,6 +149,7 @@ export interface CostoProduccion {
   costoUnitario: number;
   margenUnitario: number;
   margenPorcentaje: number;
+  tipo: string; // 'producto' o 'taller'
   materiales: MaterialCosto[];
 }
 
@@ -137,4 +161,11 @@ export interface Costo {
   cantidad: string;
   costoUnitario: number;
   costoTotal: number;
+}
+
+export interface Cuidado {
+  id: string;
+  pregunta: string;
+  respuesta: string;
+  orden: number;
 }

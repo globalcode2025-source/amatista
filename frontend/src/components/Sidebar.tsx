@@ -9,17 +9,25 @@ const ICONS: Record<string, string> = {
   up: '<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
   down: '<path d="M3 7l6 6 4-4 8 8"/><path d="M15 17h6v-6"/>',
   tag: '<path d="M20 12l-8 8-9-9V3h8l9 9Z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
+  heart: '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3c2.08 0 4.5 2.42 4.5 5.5 0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>',
+  help: '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>',
+  mail: '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2-2V6c0-1.1.9-2 2-2zm0 2h16V6H4V6zm2 2h12v8H6V6z"/>',
+  bell: '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>',
 };
 
 const LINKS = [
   { to: '/admin', label: 'Dashboard', end: true, icon: 'grid' },
-  { to: '/admin/pedidos', label: 'Pedidos', end: false, icon: 'box' },
+  { to: '/admin/ventas', label: 'Ventas', end: false, icon: 'box' },
   { to: '/admin/clientes', label: 'Clientes', end: false, icon: 'users' },
   { to: '/admin/productos', label: 'Productos', end: false, icon: 'candle' },
   { to: '/admin/eventos', label: 'Eventos', end: false, icon: 'calendar' },
-  { to: '/admin/ingresos', label: 'Ingresos', end: false, icon: 'up' },
+  { to: '/admin/galeria', label: 'Galería', end: false, icon: 'up' },
+  { to: '/admin/testimonios', label: 'Testimonios', end: false, icon: 'heart' },
   { to: '/admin/gastos', label: 'Gastos', end: false, icon: 'down' },
   { to: '/admin/costos', label: 'Costos', end: false, icon: 'tag' },
+  { to: '/admin/proveedores', label: 'Proveedores', end: false, icon: 'users' },
+  { to: '/admin/cuidados', label: 'Cuidados', end: false, icon: 'help' },
+  { to: '/admin/suscriptores', label: 'Suscriptores', end: false, icon: 'bell' },
 ];
 
 export function Sidebar() {
@@ -34,7 +42,7 @@ export function Sidebar() {
         Amatista
       </div>
 
-      <nav className="flex flex-1 flex-col gap-1">
+      <nav className="flex flex-1 flex-col gap-1 overflow-y-auto">
         {LINKS.map((l) => (
           <NavLink
             key={l.to}

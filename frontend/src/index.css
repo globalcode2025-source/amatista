@@ -26,7 +26,7 @@
   --animate-geode-breathe: geodeBreathe 16s ease-in-out infinite;
   --animate-drift-up: driftUp 9s ease-in infinite;
   --animate-scroll-down: scrollDown 1.8s ease-in-out infinite;
-  --animate-marquee: marquee 3200s linear infinite;
+  --animate-marquee: marquee 15s linear infinite;
 }
 
 /* Los keyframes van fuera de @theme, a nivel raíz del archivo */
@@ -72,11 +72,11 @@
   }
 }
 
-@keyframes marquee {
-  from {
+@keyframes marqueePause {
+  0% {
     transform: translateX(0);
   }
-  to {
+  100% {
     transform: translateX(-50%);
   }
 }

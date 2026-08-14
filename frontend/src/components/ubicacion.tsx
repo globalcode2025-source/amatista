@@ -45,19 +45,19 @@ export function Ubicacion() {
             </li>
           </ul>
 
-          <a
+          {/* <a
             href="https://www.google.com/maps/search/?api=1&query=La+Ceja+Antioquia+Colombia"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block rounded-sm border border-amatista-deep px-8 py-4 text-sm uppercase tracking-wider text-amatista-deep transition-all duration-300 hover:border-gold hover:bg-gold hover:text-ink"
           >
             Cómo llegar →
-          </a>
+          </a> */}
         </div>
 
         <div className="aspect-[4/3] overflow-hidden rounded-sm border border-ink/14 shadow-[0_24px_50px_-28px_rgba(54,32,67,0.35)]">
           <iframe
-            src="https://www.google.com/maps?q=La+Ceja,+Antioquia,+Colombia&output=embed"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15870.063009896101!2d-75.51288220535986!3d6.06095440279809!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e469ad88b01875b%3A0xf6fb1427cd59ffb0!2sRetiro%2C%20Antioquia!5e0!3m2!1ses!2sco!4v1786671926201!5m2!1ses!2sco"
             loading="lazy"
             title="Mapa Amatista - El Retiro, Antioquia"
             referrerPolicy="no-referrer-when-downgrade"

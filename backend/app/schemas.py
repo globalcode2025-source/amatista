@@ -5,6 +5,35 @@ from datetime import date, time
 from pydantic import BaseModel, ConfigDict
 
 
+class CategoriaBase(BaseModel):
+    nombre: str
+
+
+class CategoriaCreate(CategoriaBase):
+    pass
+
+
+class CategoriaRead(CategoriaBase):
+    id: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class SuscriptorBase(BaseModel):
+    correo: str
+
+
+class SuscriptorCreate(SuscriptorBase):
+    pass
+
+
+class SuscriptorRead(SuscriptorBase):
+    id: str
+    fecha: date
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class GaleriaBase(BaseModel):
     titulo: str
     tipo: str
@@ -141,6 +170,7 @@ class PedidoCreate(BaseModel):
     formaPago: str
     notas: str | None = None
     productos: list[LineaVentaInput]
+    pagoInicial: float = 0
 
 
 class PedidoUpdate(BaseModel):
@@ -152,7 +182,23 @@ class PedidoUpdate(BaseModel):
 
 class PedidoRead(PedidoBase):
     id: str
+    totalPagado: float
+    debe: float
+    estado: str
     productos: list[LineaVentaRead] = []
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PagoVentaCreate(BaseModel):
+    monto: float
+
+
+class PagoVentaRead(BaseModel):
+    id: str
+    codigo: str
+    fecha: date
+    monto: float
+
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -183,6 +229,7 @@ class GastoBase(BaseModel):
     fecha: date
     concepto: str
     categoria: str
+    tipo: str = 'General'
     monto: float
 
 
@@ -194,6 +241,7 @@ class GastoUpdate(BaseModel):
     fecha: date | None = None
     concepto: str | None = None
     categoria: str | None = None
+    tipo: str | None = None
     monto: float | None = None
 
 
@@ -243,6 +291,7 @@ class MaterialCostoRead(MaterialCostoInput):
 
 class CostoProduccionCreate(BaseModel):
     productoId: str
+    tipo: str = 'producto'  # 'producto' o 'taller'
     cantidadProducida: int
     materiales: list[MaterialCostoInput]
 
@@ -259,3 +308,25 @@ class CostoProduccionRead(BaseModel):
     margenUnitario: float
     margenPorcentaje: float
     materiales: list[MaterialCostoRead]
+
+
+class CuidadoBase(BaseModel):
+    pregunta: str
+    respuesta: str
+    orden: int = 0
+
+
+class CuidadoCreate(CuidadoBase):
+    pass
+
+
+class CuidadoUpdate(BaseModel):
+    pregunta: str | None = None
+    respuesta: str | None = None
+    orden: int | None = None
+
+
+class CuidadoRead(CuidadoBase):
+    id: str
+
+    model_config = ConfigDict(from_attributes=True)
