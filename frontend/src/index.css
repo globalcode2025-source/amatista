@@ -26,7 +26,7 @@
   --animate-geode-breathe: geodeBreathe 16s ease-in-out infinite;
   --animate-drift-up: driftUp 9s ease-in infinite;
   --animate-scroll-down: scrollDown 1.8s ease-in-out infinite;
-  --animate-marquee: marquee 15s linear infinite;
+  --animate-marquee: marquee 50s linear infinite;
 }
 
 /* Los keyframes van fuera de @theme, a nivel raíz del archivo */
@@ -69,6 +69,15 @@
   100% {
     transform: scaleY(0);
     transform-origin: bottom;
+  }
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
   }
 }
 
@@ -132,3 +141,4 @@ main > div > div.mt-5 > section > div > div.border-t {
     scroll-behavior: auto !important;
   }
 }
+

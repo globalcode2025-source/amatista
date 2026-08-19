@@ -1,6 +1,7 @@
 from collections import Counter
 from datetime import date, datetime
 from uuid import uuid4
+from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import or_, select
@@ -11,6 +12,7 @@ from app.database import get_db
 from app.schemas import LineaVentaInput, LineaVentaRead, PagoVentaCreate, PagoVentaRead, PedidoCreate, PedidoRead, PedidoUpdate
 
 router = APIRouter(prefix="/pedidos", tags=["Ventas"])
+COLUMBIA_TZ = ZoneInfo("America/Bogota")
 
 
 def serialize(pedido: models.Pedido) -> PedidoRead:
@@ -67,7 +69,7 @@ def replace_lines(pedido: models.Pedido, items: list[LineaVentaInput], db: Sessi
 
 
 def payment_code() -> str:
-    return f"PAG-{datetime.now().strftime('%Y%m%d')}-{str(uuid4())[:6].upper()}"
+    return f"PAG-{datetime.now(COLUMBIA_TZ).strftime('%Y%m%d')}-{str(uuid4())[:6].upper()}"
 
 
 def add_payment(pedido: models.Pedido, monto: float) -> models.PagoVenta:
@@ -77,7 +79,8 @@ def add_payment(pedido: models.Pedido, monto: float) -> models.PagoVenta:
         raise HTTPException(422, "El pago debe ser mayor que $0.")
     if monto > saldo + 0.005:
         raise HTTPException(422, "El pago no puede superar el saldo pendiente.")
-    pago = models.PagoVenta(id=str(uuid4()), pedido_id=pedido.id, codigo=payment_code(), fecha=date.today(), monto=monto)
+    today_in_colombia = datetime.now(COLUMBIA_TZ).date()
+    pago = models.PagoVenta(id=str(uuid4()), pedido_id=pedido.id, codigo=payment_code(), fecha=today_in_colombia, monto=monto)
     pedido.pagos.append(pago)
     return pago
 
@@ -95,10 +98,11 @@ def list_pedidos(q: str | None = Query(None), db: Session = Depends(get_db)):
 def create_pedido(payload: PedidoCreate, db: Session = Depends(get_db)):
     if not db.get(models.Cliente, payload.clienteId):
         raise HTTPException(404, "Cliente no encontrado")
+    today_in_colombia = datetime.now(COLUMBIA_TZ)
     pedido = models.Pedido(
         id=str(uuid4()), cliente_id=payload.clienteId,
-        codigo=f"AMT-{datetime.now().strftime('%Y%m%d')}-{str(uuid4())[:6].upper()}",
-        fecha=date.today(), formaPago=payload.formaPago, direccionEnvio="", total=0, notas=payload.notas,
+        codigo=f"AMT-{today_in_colombia.strftime('%Y%m%d')}-{str(uuid4())[:6].upper()}",
+        fecha=today_in_colombia.date(), formaPago=payload.formaPago, direccionEnvio="", total=0, notas=payload.notas,
     )
     db.add(pedido)
     db.flush()

@@ -51,11 +51,23 @@ def _validate_values(tipo: str, cupos: int, cupos_disponibles: int, duracion: in
 
 
 def _refresh_event_statuses(db: Session) -> None:
-    today_in_colombia = datetime.now(COLUMBIA_TZ).date()
+    now_in_colombia = datetime.now(COLUMBIA_TZ)
+    today_in_colombia = now_in_colombia.date()
+    current_time = now_in_colombia.time()
+    
+    # Actualizar eventos de hoy que ya pasaron su hora
     updated = db.query(models.Evento).filter(
         models.Evento.estado == "Próximo",
         models.Evento.fecha == today_in_colombia,
+        models.Evento.hora <= current_time
     ).update({models.Evento.estado: "Realizado"}, synchronize_session=False)
+    
+    # También actualizar eventos de fechas pasadas
+    updated += db.query(models.Evento).filter(
+        models.Evento.estado == "Próximo",
+        models.Evento.fecha < today_in_colombia
+    ).update({models.Evento.estado: "Realizado"}, synchronize_session=False)
+    
     if updated:
         db.commit()
 

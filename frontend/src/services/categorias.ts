@@ -1,4 +1,4 @@
-import { apiUrl } from './api';
+import { apiUrl, getAuthHeaders } from './api';
 
 const BASE_URL = apiUrl('/api/categorias');
 
@@ -22,9 +22,16 @@ export async function fetchCategorias(): Promise<Categoria[]> {
 }
 
 export async function createCategoria(input: CategoriaInput): Promise<Categoria> {
-  return (await request(BASE_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input) })).json() as Promise<Categoria>;
+  return (await request(BASE_URL, { 
+    method: 'POST', 
+    headers: getAuthHeaders(), 
+    body: JSON.stringify(input) 
+  })).json() as Promise<Categoria>;
 }
 
 export async function deleteCategoria(id: string): Promise<void> {
-  await request(`${BASE_URL}/${id}`, { method: 'DELETE' });
+  await request(`${BASE_URL}/${id}`, { 
+    method: 'DELETE',
+    headers: getAuthHeaders()
+  });
 }

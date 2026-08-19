@@ -20,6 +20,7 @@ interface DataTableProps<T extends { id: string }> {
   onRowDoubleClick?: (row: T) => void;
   onPayment?: (row: T) => void;
   emptyLabel?: string;
+  showActions?: boolean; // Nueva opción para mostrar/ocultar acciones
 }
 
 const defaultWhatsappUrl = (row: { id: string }) => {
@@ -28,7 +29,7 @@ const defaultWhatsappUrl = (row: { id: string }) => {
   return `https://wa.me/${phone.length === 10 && phone.startsWith('3') ? `57${phone}` : phone}`;
 };
 
-export function DataTable<T extends { id: string }>({ columns, rows, onEdit, onDelete, onView, viewLabel = 'Ver detalles', whatsappUrl = defaultWhatsappUrl, onRowDoubleClick, onPayment, emptyLabel }: DataTableProps<T>) {
+export function DataTable<T extends { id: string }>({ columns, rows, onEdit, onDelete, onView, viewLabel = 'Ver detalles', whatsappUrl = defaultWhatsappUrl, onRowDoubleClick, onPayment, emptyLabel, showActions = true }: DataTableProps<T>) {
   const [pendingDelete, setPendingDelete] = useState<T | null>(null);
   if (rows.length === 0) {
     return (
@@ -48,7 +49,7 @@ export function DataTable<T extends { id: string }>({ columns, rows, onEdit, onD
                 {c.label}
               </th>
             ))}
-            <th className="px-5 py-3.5 text-right text-[0.72rem] uppercase tracking-wide text-ink/55">Acciones</th>
+            {showActions && <th className="px-5 py-3.5 text-right text-[0.72rem] uppercase tracking-wide text-ink/55">Acciones</th>}
           </tr>
         </thead>
         <tbody>
@@ -59,7 +60,8 @@ export function DataTable<T extends { id: string }>({ columns, rows, onEdit, onD
                   {c.render ? c.render(row) : String((row as any)[c.key] ?? '—')}
                 </td>
               ))}
-              <td className="whitespace-nowrap px-5 py-4 text-right">
+              {showActions && (
+                <td className="whitespace-nowrap px-5 py-4 text-right">
                 {onView && (
                   <button type="button" onClick={() => onView(row)} aria-label={viewLabel} title={viewLabel} className="mr-4 align-middle text-amatista-mid hover:text-amatista-deep">
                     <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-none stroke-current stroke-2"><rect x="3" y="6" width="18" height="12" rx="2" /><path d="M3 10h18M16 14h2" /></svg>
@@ -100,6 +102,7 @@ export function DataTable<T extends { id: string }>({ columns, rows, onEdit, onD
                   <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-none stroke-current stroke-2"><path d="M4 7h16M9 7V4h6v3m-9 0 1 14h10l1-14M10 11v6m4-6v6"/></svg>
                 </button>
               </td>
+              )}
             </tr>
           ))}
         </tbody>

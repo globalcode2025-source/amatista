@@ -1,77 +1,160 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-export default function Login() {
+interface LoginResponse {
+  access_token: string;
+  token_type: string;
+  user: {
+    id: string;
+    email: string;
+    nombre: string;
+  };
+}
+
+export function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  // const [rememberMe, setRememberMe] = useState(false);
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('username', email);
+      formData.append('password', password);
+
+      const response = await fetch('http://localhost:8000/api/auth/login', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Error al iniciar sesión');
+      }
+
+      const data: LoginResponse = await response.json();
+      
+      // Guardar token en localStorage
+      localStorage.setItem('token', data.access_token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      
+      // Redirigir al admin
+      navigate('/admin');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <main className="min-h-screen bg-[radial-gradient(ellipse_70%_60%_at_50%_0%,rgba(122,92,148,0.35),transparent_55%),linear-gradient(180deg,#2a1735_0%,#241825_100%)] px-4 py-4 text-cream sm:px-6 sm:py-6 lg:px-8 lg:py-8">
-      <div className="mx-auto flex min-h-[calc(100vh-2rem)] max-w-[1180px] items-center justify-center sm:min-h-[calc(100vh-3rem)] lg:min-h-[calc(100vh-4rem)]">
-        <section className="grid w-full overflow-hidden rounded-[24px] border border-cream/10 bg-cream/[0.06] shadow-[0_28px_80px_-35px_rgba(0,0,0,0.55)] xl:grid-cols-[1.05fr_0.95fr]">
-          <div className="relative hidden overflow-hidden bg-[linear-gradient(160deg,#362043_0%,#2a1735_55%,#241825_100%)] p-8 lg:p-10 xl:flex xl:flex-col xl:justify-between">
-            <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-20">
-              <div className="absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-gold/25" />
-              <div className="absolute left-1/2 top-1/2 h-[360px] w-[360px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-cream/10" />
-            </div>
-
-            <div className="relative z-[1] flex items-center gap-2 font-serif text-[1rem] font-medium tracking-[0.03em] text-cream/90">
+    <div className="min-h-screen flex items-center justify-center bg-amatista-deep">
+      <div className="w-full max-w-6xl mx-4">
+        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
+          <div className="flex flex-col md:flex-row">
+            {/* Sección izquierda - Fondo oscuro */}
+            <div className="md:w-1/2 bg-amatista-deep p-12 text-cream flex flex-col justify-center">
+              <div className="mb-8">
+                <h1 className="text-4xl font-serif font-bold mb-4">AMATISTA</h1>
+                <p className="font-hand text-xl text-gold">Accede a tu espacio</p>
+              </div>
               
-              Amatista
+              <div className="mb-8">
+                <h2 className="text-3xl font-serif font-semibold mb-4">Bienvenida de vuelta a Amatista</h2>
+                <p className="text-cream/80 leading-relaxed">
+                  Ingresa para gestionar pedidos, revisar tu comunidad y volver a tus rituales favoritos.
+                </p>
+              </div>
             </div>
 
-            <div className="relative z-[1] max-w-[420px] pt-12 xl:pt-0">
-              <span className="font-hand text-[1.5rem] text-gold-light">Accede a tu espacio</span>
-              <h1 className="mt-3 font-serif text-[clamp(2.4rem,4vw,3.4rem)] font-semibold leading-[1.03]">
-                Bienvenida de vuelta a Amatista
-              </h1>
-              <p className="mt-4 max-w-[34ch] leading-[1.75] text-cream/72">
-                Ingresa para gestionar pedidos, revisar tu comunidad y volver a tus rituales favoritos.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-center p-5 sm:p-8 lg:p-10 xl:p-14">
-            <div className="w-full max-w-[520px] rounded-[24px] border border-cream/10 bg-[#f8f3ec] px-5 py-7 text-ink shadow-[0_18px_60px_-35px_rgba(0,0,0,0.45)] sm:px-8 sm:py-10">
-              <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            {/* Sección derecha - Formulario */}
+            <div className="md:w-1/2 bg-cream p-12 flex flex-col justify-center">
+              <div className="flex justify-between items-center mb-8">
                 <div>
-                  <span className="font-hand text-[1.35rem] text-gold">Iniciar sesión</span>
-                  <h2 className="mt-1 font-serif text-[clamp(1.8rem,4vw,2rem)] font-semibold text-ink">Amatista</h2>
+                  <p className="text-sm text-ink/55 uppercase tracking-wide">Iniciar sesión</p>
+                  <h3 className="text-2xl font-serif font-bold text-ink">Amatista</h3>
                 </div>
-                <Link
-                  to="/#inicio"
-                  className="text-sm uppercase tracking-[0.06em] text-amatista-mid transition-colors hover:text-amatista-deep"
+                <button 
+                  onClick={() => navigate('/')}
+                  className="text-sm text-ink/55 hover:text-ink transition-colors"
                 >
-                  Volver
-                </Link>
+                  VOLVER
+                </button>
               </div>
 
-              <form className="space-y-4 sm:space-y-5">
-                <label className="block">
-                  <span className="mb-2 block text-sm uppercase tracking-[0.06em] text-ink/60">Usuario</span>
-                  <input
-                    type="text"
-                    placeholder="Tu usuario"
-                    className="w-full rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm text-ink outline-none transition-colors placeholder:text-ink/35 focus:border-gold sm:px-4 sm:py-3.5"
-                  />
-                </label>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {error && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                    {error}
+                  </div>
+                )}
 
-                <label className="block">
-                  <span className="mb-2 block text-sm uppercase tracking-[0.06em] text-ink/60">Contraseña</span>
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-ink mb-2">
+                    CORREO
+                  </label>
                   <input
-                    type="password"
-                    placeholder="••••••••"
-                    className="w-full rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm text-ink outline-none transition-colors placeholder:text-ink/35 focus:border-gold sm:px-4 sm:py-3.5"
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 border border-ink/14 rounded-md focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent bg-white"
+                    placeholder="tu@correo.com"
                   />
-                </label>
+                </div>
+
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium text-ink mb-2">
+                    CONTRASEÑA
+                  </label>
+                  <input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 border border-ink/14 rounded-md focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent bg-white"
+                    placeholder="••••••••"
+                  />
+                </div>
+
+                {/* <div className="flex items-center justify-between">
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="w-4 h-4 text-gold border-ink/14 rounded focus:ring-gold"
+                    />
+                    <span className="ml-2 text-sm text-ink/70">Recordarme</span>
+                  </label>
+                 
+                </div> */}
 
                 <button
-                  type="button"
-                  className="mt-2 w-full rounded-xl bg-amatista-deep px-5 py-3.5 text-sm uppercase tracking-[0.08em] text-cream transition-all duration-300 hover:bg-gold hover:text-ink"
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-amatista-deep text-cream py-3 px-4 rounded-md font-medium hover:bg-amatista-deep/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Entrar
+                  {loading ? 'Iniciando sesión...' : 'ENTRAR'}
                 </button>
               </form>
+
+              
             </div>
           </div>
-        </section>
+        </div>
       </div>
-    </main>
+    </div>
   );
 }
+
+export default Login;

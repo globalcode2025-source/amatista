@@ -69,6 +69,9 @@ export default function SuscriptoresPage() {
           columns={columns}
           rows={filtered}
           emptyLabel="Aún no hay suscriptores registrados."
+          onEdit={() => {}}
+          onDelete={() => {}}
+          showActions={false}
         />
       )}
     </div>

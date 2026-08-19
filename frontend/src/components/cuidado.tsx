@@ -1,9 +1,12 @@
+import { useEffect, useState } from 'react';
+import { fetchCuidados } from '../services/cuidados';
+
 export interface FaqItem {
   question: string;
   answer: string;
 }
 
-const FAQS: FaqItem[] = [
+const FAQS_FALLBACK: FaqItem[] = [
   {
     question: '¿Cuánto debo dejar quemar mi vela la primera vez?',
     answer:
@@ -27,6 +30,34 @@ const FAQS: FaqItem[] = [
 ];
 
 export function Cuidado() {
+  const [faqs, setFaqs] = useState<FaqItem[]>(FAQS_FALLBACK);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadCuidados = async () => {
+      try {
+        const data = await fetchCuidados();
+        if (data && data.length > 0) {
+          // Ordenar por el campo orden y convertir al formato esperado
+          const sorted = data
+            .sort((a, b) => a.orden - b.orden)
+            .map((c) => ({
+              question: c.pregunta,
+              answer: c.respuesta,
+            }));
+          setFaqs(sorted);
+        }
+      } catch (error) {
+        console.error('Error al cargar cuidados:', error);
+        // Mantener los datos fallback si hay error
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCuidados();
+  }, []);
+
   return (
     <section id="cuidado" className="bg-cream py-[120px]">
       <div className="mx-auto max-w-[1180px] px-8">
@@ -41,7 +72,7 @@ export function Cuidado() {
         </div>
 
         <div className="grid grid-cols-1 gap-x-[50px] gap-y-5 md:grid-cols-2">
-          {FAQS.map((faq, i) => (
+          {faqs.map((faq, i) => (
             <details
               key={faq.question}
               className="group border-b border-ink/14 py-[22px]"

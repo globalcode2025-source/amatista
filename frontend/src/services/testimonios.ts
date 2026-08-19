@@ -1,5 +1,5 @@
 import type { TestimonioAdmin } from '../admin/types';
-import { apiUrl } from './api';
+import { apiUrl, getAuthHeaders } from './api';
 
 const BASE = apiUrl('/api/testimonios');
 type CreateInput = Pick<TestimonioAdmin, 'nombre' | 'descripcion' | 'tipo'>;
@@ -19,13 +19,21 @@ export async function fetchTestimoniosPublicos() {
 }
 
 export async function createTestimonio(input: CreateInput) {
-  const response = await fetch(BASE, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input) });
+  const response = await fetch(BASE, { 
+    method: 'POST', 
+    headers: getAuthHeaders(), 
+    body: JSON.stringify(input) 
+  });
   if (!response.ok) throw new Error(await message(response));
   return await response.json() as TestimonioAdmin;
 }
 
 export async function updateEstadoTestimonio(id: string, estado: 'Aceptado' | 'Rechazado') {
-  const response = await fetch(`${BASE}/${id}/estado`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ estado }) });
+  const response = await fetch(`${BASE}/${id}/estado`, { 
+    method: 'PATCH', 
+    headers: getAuthHeaders(), 
+    body: JSON.stringify({ estado }) 
+  });
   if (!response.ok) throw new Error(await message(response));
   return await response.json() as TestimonioAdmin;
 }

@@ -1,5 +1,5 @@
 import type { Cuidado } from '../admin/types';
-import { apiUrl } from './api';
+import { apiUrl, getAuthHeaders } from './api';
 
 const BASE = apiUrl('/api/cuidados');
 
@@ -15,7 +15,7 @@ export async function fetchCuidados() {
 export async function createCuidado(data: Omit<Cuidado, 'id'>) {
   const r = await fetch(BASE, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify(data),
   });
   if (!r.ok) throw new Error(await message(r));
@@ -25,7 +25,7 @@ export async function createCuidado(data: Omit<Cuidado, 'id'>) {
 export async function updateCuidado(id: string, data: Partial<Cuidado>) {
   const r = await fetch(`${BASE}/${id}`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify(data),
   });
   if (!r.ok) throw new Error(await message(r));
@@ -33,6 +33,9 @@ export async function updateCuidado(id: string, data: Partial<Cuidado>) {
 }
 
 export async function deleteCuidado(id: string) {
-  const r = await fetch(`${BASE}/${id}`, { method: 'DELETE' });
+  const r = await fetch(`${BASE}/${id}`, { 
+    method: 'DELETE',
+    headers: getAuthHeaders()
+  });
   if (!r.ok) throw new Error('No se pudo eliminar el cuidado');
 }

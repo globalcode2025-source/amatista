@@ -1,8 +1,9 @@
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
 
 from app.routers.galeria import router as galeria_router
 from app.routers.eventos import router as eventos_router
@@ -16,6 +17,8 @@ from app.routers.costos import router as costos_router
 from app.routers.cuidados import router as cuidados_router
 from app.routers.categorias import router as categorias_router
 from app.routers.suscriptores import router as suscriptores_router
+from app.routers.auth import router as auth_router
+from app.auth import verify_token
 
 app = FastAPI(title="Amatista API")
 app.add_middleware(
@@ -25,6 +28,55 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Middleware de autenticación para rutas de admin
+@app.middleware("http")
+async def auth_middleware(request: Request, call_next):
+    # Rutas públicas que no requieren autenticación (incluso para escritura)
+    public_paths = {
+        "/api/auth/login",
+        "/api/auth/me",
+        "/api/suscriptores",  # Suscripciones del footer público
+        "/api/productos",     # Productos públicos
+        "/api/eventos",       # Eventos públicos
+        "/api/galeria",       # Galería pública
+        "/api/testimonios",   # Testimonios públicos
+        "/api/cuidados",      # Cuidados públicos
+        "/health",
+        "/media",
+        "/eventos-media",
+        "/productos-media"
+    }
+    
+    # Permitir peticiones OPTIONS (preflight CORS)
+    if request.method == "OPTIONS":
+        return await call_next(request)
+    
+    # Permitir rutas públicas
+    if any(request.url.path.startswith(path) for path in public_paths):
+        return await call_next(request)
+    
+    # Permitir GET requests en rutas de lectura pública
+    if request.method == "GET":
+        return await call_next(request)
+    
+    # Verificar autenticación para POST, PUT, DELETE, PATCH
+    if request.url.path.startswith("/api/"):
+        auth_header = request.headers.get("Authorization")
+        if not auth_header or not auth_header.startswith("Bearer "):
+            return JSONResponse(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                content={"detail": "No autorizado"}
+            )
+        
+        token = auth_header.split(" ")[1]
+        if not verify_token(token):
+            return JSONResponse(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                content={"detail": "Token inválido"}
+            )
+    
+    return await call_next(request)
 
 MEDIA_DIR = Path(__file__).resolve().parent.parent / "uploads" / "galeria"
 MEDIA_DIR.mkdir(parents=True, exist_ok=True)
@@ -47,6 +99,7 @@ app.include_router(costos_router, prefix="/api")
 app.include_router(cuidados_router, prefix="/api")
 app.include_router(categorias_router, prefix="/api")
 app.include_router(suscriptores_router, prefix="/api")
+app.include_router(auth_router, prefix="/api")
 
 
 @app.get("/health")

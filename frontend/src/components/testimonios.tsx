@@ -26,6 +26,7 @@ export function Testimonios() {
   const [formData, setFormData] = useState<TestimonialFormData>(FORM_DEFAULTS);
   const [error, setError] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     fetchTestimoniosPublicos().then(setItems).catch(() => setItems([]));
@@ -35,16 +36,28 @@ export function Testimonios() {
 
   useEffect(() => {
     if (renderedTestimonials.length < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    
+    // Solo ejecutar el intervalo si no está en hover
+    if (isHovered) return;
+    
     const timer = window.setInterval(() => setActive((current) => (current + 1) % renderedTestimonials.length), 5000);
     return () => window.clearInterval(timer);
-  }, [renderedTestimonials.length]);
-
-  useEffect(() => {
-    itemRefs.current[active]?.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
-  }, [active, renderedTestimonials.length]);
+  }, [renderedTestimonials.length, isHovered]);
 
   useEffect(() => {
     if (active >= renderedTestimonials.length && renderedTestimonials.length > 0) setActive(0);
+  }, [active, renderedTestimonials.length]);
+
+  useEffect(() => {
+    const track = trackRef.current;
+    const activeItem = itemRefs.current[active];
+    if (track && activeItem) {
+      const scrollAmount = activeItem.offsetLeft - track.offsetLeft;
+      track.scrollTo({
+        left: scrollAmount,
+        behavior: 'smooth'
+      });
+    }
   }, [active, renderedTestimonials.length]);
 
   const handleScroll = () => {
@@ -87,7 +100,13 @@ export function Testimonios() {
         </div>
 
         {renderedTestimonials.length > 0 && <>
-          <div ref={trackRef} onScroll={handleScroll} className="flex snap-x snap-mandatory gap-[26px] overflow-x-auto pb-2.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div 
+            ref={trackRef} 
+            onScroll={handleScroll} 
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            className="flex snap-x snap-mandatory gap-[26px] overflow-x-auto pb-2.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
             {renderedTestimonials.map((testimonial, index) => (
               <div key={testimonial.id} ref={(node) => { itemRefs.current[index] = node; }} className="flex min-w-[340px] max-w-[340px] shrink-0 snap-start flex-col gap-[18px] rounded-sm border border-ink/8 bg-white px-[30px] py-[34px]">
                 <span className="font-serif text-[3rem] italic leading-[0.5] text-gold">“</span>

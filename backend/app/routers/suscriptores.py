@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime
 from uuid import uuid4
+from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
@@ -12,6 +13,7 @@ from app.database import get_db
 from app.schemas import SuscriptorCreate, SuscriptorRead
 
 router = APIRouter(prefix="/suscriptores", tags=["Suscriptores"])
+COLUMBIA_TZ = ZoneInfo("America/Bogota")
 
 
 @router.get("", response_model=list[SuscriptorRead])
@@ -27,7 +29,8 @@ def create_suscriptor(payload: SuscriptorCreate, db: Session = Depends(get_db)) 
     if existing:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Ya existe un suscriptor con ese correo")
     
-    suscriptor = models.Suscriptor(id=str(uuid4()), correo=payload.correo, fecha=date.today())
+    today_in_colombia = datetime.now(COLUMBIA_TZ).date()
+    suscriptor = models.Suscriptor(id=str(uuid4()), correo=payload.correo, fecha=today_in_colombia)
     db.add(suscriptor)
     db.commit()
     db.refresh(suscriptor)

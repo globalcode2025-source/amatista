@@ -8,6 +8,16 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
 
 
+class Usuario(Base):
+    __tablename__ = "usuarios"
+
+    id: Mapped[str] = mapped_column(String(40), primary_key=True)
+    email: Mapped[str] = mapped_column(String(150), nullable=False, unique=True)
+    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    nombre: Mapped[str] = mapped_column(String(150), nullable=False)
+    activo: Mapped[bool] = mapped_column(default=True)
+
+
 class Cliente(Base):
     __tablename__ = "clientes"
 
@@ -174,12 +184,11 @@ class CostoProduccion(Base):
     __tablename__ = "costos_produccion"
 
     id: Mapped[str] = mapped_column(String(40), primary_key=True)
-    producto_id: Mapped[str] = mapped_column(ForeignKey("productos.id", ondelete="SET NULL"), nullable=True, index=True)
+    producto_id: Mapped[str] = mapped_column(String(40), nullable=True, index=True)
     tipo: Mapped[str] = mapped_column(String(20), nullable=False, default='producto')  # 'producto' o 'taller'
     fecha: Mapped[date] = mapped_column(Date, nullable=False)
     cantidad_producida: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    producto: Mapped[Producto] = relationship()
     materiales: Mapped[list[MaterialCosto]] = relationship(back_populates="costo_produccion", cascade="all, delete-orphan")
 
 

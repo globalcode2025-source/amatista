@@ -1,5 +1,5 @@
 import type { Cliente } from '../admin/types';
-import { apiUrl } from './api';
+import { apiUrl, getAuthHeaders } from './api';
 
 const BASE_URL = apiUrl('/api/clientes');
 export type ClienteInput = Omit<Cliente, 'id'>;
@@ -16,18 +16,29 @@ export async function fetchClientes(query?: string): Promise<Cliente[]> {
 }
 
 export async function createCliente(input: ClienteInput): Promise<Cliente> {
-  const response = await fetch(BASE_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input) });
+  const response = await fetch(BASE_URL, { 
+    method: 'POST', 
+    headers: getAuthHeaders(), 
+    body: JSON.stringify(input) 
+  });
   if (!response.ok) throw new Error(await parseError(response, 'No se pudo crear el cliente'));
   return (await response.json()) as Cliente;
 }
 
 export async function updateCliente(id: string, input: Partial<ClienteInput>): Promise<Cliente> {
-  const response = await fetch(`${BASE_URL}/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input) });
+  const response = await fetch(`${BASE_URL}/${id}`, { 
+    method: 'PATCH', 
+    headers: getAuthHeaders(), 
+    body: JSON.stringify(input) 
+  });
   if (!response.ok) throw new Error(await parseError(response, 'No se pudo actualizar el cliente'));
   return (await response.json()) as Cliente;
 }
 
 export async function deleteCliente(id: string): Promise<void> {
-  const response = await fetch(`${BASE_URL}/${id}`, { method: 'DELETE' });
+  const response = await fetch(`${BASE_URL}/${id}`, { 
+    method: 'DELETE',
+    headers: getAuthHeaders()
+  });
   if (!response.ok) throw new Error(await parseError(response, 'No se pudo eliminar el cliente'));
 }

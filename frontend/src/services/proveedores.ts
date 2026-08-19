@@ -1,5 +1,5 @@
 import type { Proveedor } from '../admin/types';
-import { apiUrl } from './api';
+import { apiUrl, getAuthHeaders } from './api';
 
 const BASE_URL = apiUrl('/api/proveedores');
 export type ProveedorInput = Omit<Proveedor, 'id'>;
@@ -15,18 +15,29 @@ export async function fetchProveedores(): Promise<Proveedor[]> {
 }
 
 export async function createProveedor(input: ProveedorInput): Promise<Proveedor> {
-  const response = await fetch(BASE_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input) });
+  const response = await fetch(BASE_URL, { 
+    method: 'POST', 
+    headers: getAuthHeaders(), 
+    body: JSON.stringify(input) 
+  });
   if (!response.ok) throw new Error(await errorMessage(response, 'No se pudo guardar el proveedor.'));
   return response.json() as Promise<Proveedor>;
 }
 
 export async function updateProveedor(id: string, input: Partial<ProveedorInput>): Promise<Proveedor> {
-  const response = await fetch(`${BASE_URL}/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input) });
+  const response = await fetch(`${BASE_URL}/${id}`, { 
+    method: 'PATCH', 
+    headers: getAuthHeaders(), 
+    body: JSON.stringify(input) 
+  });
   if (!response.ok) throw new Error(await errorMessage(response, 'No se pudo actualizar el proveedor.'));
   return response.json() as Promise<Proveedor>;
 }
 
 export async function deleteProveedor(id: string): Promise<void> {
-  const response = await fetch(`${BASE_URL}/${id}`, { method: 'DELETE' });
+  const response = await fetch(`${BASE_URL}/${id}`, { 
+    method: 'DELETE',
+    headers: getAuthHeaders()
+  });
   if (!response.ok) throw new Error(await errorMessage(response, 'No se pudo eliminar el proveedor.'));
 }

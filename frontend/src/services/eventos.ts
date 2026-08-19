@@ -1,5 +1,5 @@
 import type { EventoAdmin } from '../admin/types';
-import { apiUrl } from './api';
+import { apiUrl, getAuthHeaders } from './api';
 
 const BASE_URL = apiUrl('/api/eventos');
 
@@ -39,19 +39,36 @@ export async function fetchEventos(): Promise<EventoAdmin[]> {
 }
 
 export async function createEvento(input: EventoInput): Promise<EventoAdmin> {
-  const response = await fetch(BASE_URL, { method: 'POST', body: formData(input) });
+  const headers = getAuthHeaders();
+  delete (headers as any)['Content-Type']; // Para multipart/form-data
+  
+  const response = await fetch(BASE_URL, { 
+    method: 'POST', 
+    headers,
+    body: formData(input) 
+  });
   if (!response.ok) throw new Error((await response.json().catch(() => null))?.detail ?? 'No se pudo crear el evento');
   return (await response.json()) as EventoAdmin;
 }
 
 export async function updateEvento(id: string, input: Partial<EventoInput>): Promise<EventoAdmin> {
-  const response = await fetch(`${BASE_URL}/${id}`, { method: 'PATCH', body: formData(input) });
+  const headers = getAuthHeaders();
+  delete (headers as any)['Content-Type']; // Para multipart/form-data
+  
+  const response = await fetch(`${BASE_URL}/${id}`, { 
+    method: 'PATCH', 
+    headers,
+    body: formData(input) 
+  });
   if (!response.ok) throw new Error((await response.json().catch(() => null))?.detail ?? 'No se pudo actualizar el evento');
   return (await response.json()) as EventoAdmin;
 }
 
 export async function deleteEvento(id: string): Promise<void> {
-  const response = await fetch(`${BASE_URL}/${id}`, { method: 'DELETE' });
+  const response = await fetch(`${BASE_URL}/${id}`, { 
+    method: 'DELETE',
+    headers: getAuthHeaders()
+  });
   if (!response.ok) throw new Error('No se pudo eliminar el evento');
 }
 
@@ -62,13 +79,21 @@ export async function fetchAsistentesEvento(eventoId: string): Promise<Asistente
 }
 
 export async function createAsistenteEvento(eventoId: string, input: AsistenteEventoInput): Promise<AsistenteEvento> {
-  const response = await fetch(`${BASE_URL}/${eventoId}/asistentes`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input) });
+  const response = await fetch(`${BASE_URL}/${eventoId}/asistentes`, { 
+    method: 'POST', 
+    headers: getAuthHeaders(), 
+    body: JSON.stringify(input) 
+  });
   if (!response.ok) throw new Error((await response.json().catch(() => null))?.detail ?? 'No se pudo registrar el asistente');
   return (await response.json()) as AsistenteEvento;
 }
 
 export async function addPagoAsistente(eventoId: string, asistenteId: string, pago: number): Promise<AsistenteEvento> {
-  const response = await fetch(`${BASE_URL}/${eventoId}/asistentes/${asistenteId}/pagos`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pago }) });
+  const response = await fetch(`${BASE_URL}/${eventoId}/asistentes/${asistenteId}/pagos`, { 
+    method: 'POST', 
+    headers: getAuthHeaders(), 
+    body: JSON.stringify({ pago }) 
+  });
   if (!response.ok) throw new Error((await response.json().catch(() => null))?.detail ?? 'No se pudo registrar el pago');
   return (await response.json()) as AsistenteEvento;
 }
