@@ -18,11 +18,19 @@ COLUMBIA_TZ = ZoneInfo("America/Bogota")
 def serialize(pedido: models.Pedido) -> PedidoRead:
     total_pagado = sum(pago.monto for pago in pedido.pagos)
     debe = max(pedido.total - total_pagado, 0)
+    
+    # Calcular estado de venta basado en si debe == 0
+    estado_venta = "Completado" if debe < 0.005 else "Pendiente"
+    
     return PedidoRead(
         id=pedido.id, clienteId=pedido.cliente_id, codigo=pedido.codigo, fecha=pedido.fecha,
         formaPago=pedido.formaPago, direccionEnvio=pedido.direccionEnvio,
         total=pedido.total, notas=pedido.notas, totalPagado=total_pagado, debe=debe,
-        estado="Completado" if debe < 0.005 else "Pendiente",
+        estado=pedido.estado,  # Estado del pedido (logística)
+        estadoVenta=estado_venta,  # Estado de la venta (financiero)
+        clienteNombre=pedido.cliente.nombre,
+        clienteTelefono=pedido.cliente.telefono,
+        clienteCiudad=pedido.cliente.ciudad,
         productos=[LineaVentaRead(productoId=linea.producto_id, nombre=linea.producto.nombre, precioUnitario=linea.precio_unitario, cantidad=linea.cantidad, subtotal=linea.subtotal) for linea in pedido.lineas],
     )
 
@@ -103,6 +111,7 @@ def create_pedido(payload: PedidoCreate, db: Session = Depends(get_db)):
         id=str(uuid4()), cliente_id=payload.clienteId,
         codigo=f"AMT-{today_in_colombia.strftime('%Y%m%d')}-{str(uuid4())[:6].upper()}",
         fecha=today_in_colombia.date(), formaPago=payload.formaPago, direccionEnvio="", total=0, notas=payload.notas,
+        estado="Pendiente"  # Estado inicial por defecto
     )
     db.add(pedido)
     db.flush()

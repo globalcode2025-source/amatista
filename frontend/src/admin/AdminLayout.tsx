@@ -39,7 +39,7 @@ export function AdminLayout() {
   return (
     <div className="flex min-h-screen bg-[#FBF8F3]">
       <Sidebar />
-      <main className="flex-1 overflow-x-hidden px-6 py-8 md:px-10 md:py-10">
+      <main className="flex-1 overflow-x-hidden px-6 py-8 pt-16 md:px-10 md:py-10 md:pt-10">
         <Outlet context={ctx} />
       </main>
     </div>

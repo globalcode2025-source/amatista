@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Home from './pages/home';
 import Catalogo from './pages/catalogo';
 import Login from './pages/Login';
@@ -7,6 +7,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import AdminLayout from './admin/AdminLayout';
 import Dashboard from './admin/pages/Dashboard';
 import Pedidos from './admin/pages/Pedidos'; //VENTAS
+import Pedido from './admin/pages/Pedido'; //PEDIDO
 import Clientes from './admin/pages/Clientes';
 import Productos from './admin/pages/Productos';
 import Eventos from './admin/pages/Eventos';
@@ -25,16 +26,17 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const [isValid, setIsValid] = useState(false);
 
   useEffect(() => {
-    // Verificar si estamos en una ruta de admin
-    if (pathname.startsWith('/admin')) {
-      // Si no hay token, redirigir al login inmediatamente
-      if (!token) {
-        window.location.href = '/login';
-        return;
-      }
-      
-      // Si hay token, verificar que sea válido haciendo una petición al backend
-      const verifyToken = async () => {
+    const checkAuth = async () => {
+      // Verificar si estamos en una ruta de admin
+      if (pathname.startsWith('/admin')) {
+        // Si no hay token, marcar como no válido
+        if (!token) {
+          setIsVerified(true);
+          setIsValid(false);
+          return;
+        }
+        
+        // Si hay token, verificar que sea válido haciendo una petición al backend
         try {
           const response = await fetch('http://localhost:8000/api/auth/me', {
             headers: {
@@ -46,36 +48,38 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
             setIsValid(true);
             setIsVerified(true);
           } else {
-            // Token inválido, redirigir al login
+            // Token inválido, limpiar y marcar como no válido
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            window.location.href = '/login';
+            setIsVerified(true);
+            setIsValid(false);
           }
         } catch (error) {
-          // Error de conexión, redirigir al login por seguridad
+          // Error de conexión, limpiar y marcar como no válido por seguridad
           localStorage.removeItem('token');
           localStorage.removeItem('user');
-          window.location.href = '/login';
+          setIsVerified(true);
+          setIsValid(false);
         }
-      };
-      
-      verifyToken();
-    } else {
-      // No estamos en admin, no verificar
-      setIsVerified(true);
-    }
+      } else {
+        // No estamos en admin, no verificar
+        setIsVerified(true);
+      }
+    };
+
+    checkAuth();
   }, [token, pathname]);
 
-  // Si estamos en admin y no está verificado, mostrar loading o redirigir
+  // Si estamos en admin y no está verificado, mostrar loading
   if (pathname.startsWith('/admin') && !isVerified) {
     return <div className="min-h-screen flex items-center justify-center bg-cream">
       <div className="text-ink">Verificando autenticación...</div>
     </div>;
   }
 
-  // Si estamos en admin y el token no es válido, no renderizar nada mientras redirige
+  // Si estamos en admin y el token no es válido, redirigir al login
   if (pathname.startsWith('/admin') && !isValid) {
-    return null;
+    return <Navigate to="/login" replace />;
   }
 
   return <>{children}</>;
@@ -124,6 +128,7 @@ export default function App() {
           }>
             <Route index element={<Dashboard />} />
             <Route path="ventas" element={<Pedidos />} /> //VENTAS
+            <Route path="pedidos" element={<Pedido />} /> //PEDIDO
             <Route path="clientes" element={<Clientes />} />
             <Route path="productos" element={<Productos />} />
             <Route path="eventos" element={<Eventos />} />

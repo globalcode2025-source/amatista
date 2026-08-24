@@ -76,13 +76,13 @@ export function Footer() {
             <h5 className="mb-4 text-[0.78rem] uppercase tracking-[0.08em] text-gold-light">Contacto</h5>
             <ul className="flex flex-col gap-2.5">
               <li>
-                <a href="mailto:hola@amatistavelas.co" className="text-sm text-cream/72 transition-colors hover:text-gold-light">
-                  hola@amatistavelas.co
+                <a href="mailto:amatistavelasyaromas@gmail.com" className="text-sm text-cream/72 transition-colors hover:text-gold-light">
+                  amatistavelasyaromas@gmail.com
                 </a>
               </li>
               <li>
                 <a
-                  href="https://wa.me/573000000000"
+                  href="https://wa.me/573147325051"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-cream/72 transition-colors hover:text-gold-light"
@@ -92,12 +92,22 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="https://instagram.com/amatista_velasyaromas"
+                  href="https://www.instagram.com/amatista_velasyaromas?igsi=N2lhOGZuaHZtYzk2&utm_source=qr"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-cream/72 transition-colors hover:text-gold-light"
                 >
                   Instagram
+                </a>
+              </li>
+               <li>
+                <a
+                  href="https://www.tiktok.com/@amatista_velasyaromas?_r=1&_t=ZS-999vIiZIiws"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-cream/72 transition-colors hover:text-gold-light"
+                >
+                  TikTok
                 </a>
               </li>
               <li className="text-sm text-cream/72">Envíos a toda Colombia</li>

@@ -105,6 +105,7 @@ class Pedido(Base):
     direccionEnvio: Mapped[str] = mapped_column(String(255), nullable=False)
     total: Mapped[float] = mapped_column(Float, nullable=False)
     notas: Mapped[str | None] = mapped_column(Text)
+    estado: Mapped[str] = mapped_column(String(50), nullable=False, default="Pendiente")  # Pendiente, Proceso, Despachado, Entregado
 
     cliente: Mapped[Cliente] = relationship(back_populates="pedidos")
     lineas: Mapped[list[LineaVenta]] = relationship(back_populates="pedido", cascade="all, delete-orphan")

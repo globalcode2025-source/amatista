@@ -58,12 +58,15 @@ export default function PedidosPage() {
 
   const filtered = useMemo(() => {
     const term = query.trim().toLowerCase();
-    return items.filter((item) => 
-      (statusFilter === 'Todos' || item.estado === statusFilter) &&
-      [item.codigo, item.formaPago, item.estado].some((value) => 
+    return items.filter((item) => {
+      // Calcular estado de venta basado en si debe == 0
+      const estadoVenta = item.debe < 0.005 ? 'Completado' : 'Pendiente';
+      
+      return (statusFilter === 'Todos' || estadoVenta === statusFilter) &&
+      [item.codigo, item.formaPago, estadoVenta].some((value) => 
         String(value).toLowerCase().includes(term)
-      )
-    );
+      );
+    });
   }, [items, query, statusFilter]);
 
   const clientesMap = useMemo(() => 
@@ -136,17 +139,20 @@ export default function PedidosPage() {
       className: 'text-right'
     },
     { 
-      key: 'estado', 
-      label: 'Estado',
-      render: (row) => (
-        <span className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-medium ${
-          row.estado === 'Completado' 
-            ? 'bg-success/10 text-success' 
-            : 'bg-warning/10 text-warning'
-        }`}>
-          {row.estado}
-        </span>
-      )
+      key: 'estadoVenta', 
+      label: 'Estado Venta',
+      render: (row) => {
+        const estadoVenta = row.debe < 0.005 ? 'Completado' : 'Pendiente';
+        return (
+          <span className={`rounded-full px-2 py-1 text-xs font-medium ${
+            estadoVenta === 'Completado' 
+              ? 'bg-green-100 text-green-800' 
+              : 'bg-yellow-100 text-yellow-800'
+          }`}>
+            {estadoVenta}
+          </span>
+        );
+      }
     },
   ];
 

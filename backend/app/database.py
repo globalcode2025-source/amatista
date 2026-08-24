@@ -11,7 +11,7 @@ DATABASE_URL = get_database_url()
 
 engine = create_engine(
     DATABASE_URL,
-    echo=True,          # Muestra el SQL en consola (útil en desarrollo)
+    echo=False,
     future=True,
 )
 

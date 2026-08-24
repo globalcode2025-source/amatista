@@ -68,7 +68,7 @@ export function Historia() {
             que sientas cuando enciendes una de nuestras velas.
           </p>
           <a
-            href="#eventos"
+            href="https://www.instagram.com/amatista_velasyaromas?igsi=N2lhOGZuaHZtYzk2&utm_source=qr"
             className="mt-2.5 inline-block rounded-sm border border-amatista-deep px-8 py-4 text-sm uppercase tracking-wider text-amatista-deep transition-all duration-300 hover:border-gold hover:bg-gold hover:text-ink"
           >
             Conoce sobre nosotros

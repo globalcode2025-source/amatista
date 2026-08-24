@@ -23,7 +23,7 @@ const DEFAULT_LINKS: NavLinkItem[] = [
   { label: 'Ubicación', href: '/#ubicacion' },
 ];
 
-export function Nav({ links = DEFAULT_LINKS, ctaLabel = 'Reservar taller', ctaHref = '/#eventos' }: NavProps) {
+export function Nav({ links = DEFAULT_LINKS, ctaLabel = 'Reservar taller', ctaHref = 'https://wa.me/573147325051' }: NavProps) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 

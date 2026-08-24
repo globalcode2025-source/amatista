@@ -107,7 +107,7 @@ export function Hero({
           <a href={exploreHref} className={`${BTN_BASE} ${BTN_GOLD}`}>
             Ver colección
           </a>
-          <a href={reserveHref} className={`${BTN_BASE} ${BTN_OUTLINE}`}>
+          <a href='https://wa.me/573147325051' className={`${BTN_BASE} ${BTN_OUTLINE}`}>
             Reservar el taller
           </a>
         </div>

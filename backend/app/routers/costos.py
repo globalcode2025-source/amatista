@@ -32,7 +32,7 @@ def read(costo: models.CostoProduccion, db: Session, productos: dict = None, eve
         nombre = evento.nombre if evento else "Evento desconocido"
     
     margen = precio - unitario
-    return CostoProduccionRead(id=costo.id, fecha=costo.fecha, productoId=costo.producto_id, productoNombre=nombre, precioProducto=precio, cantidadProducida=costo.cantidad_producida, costoTotal=total, costoUnitario=unitario, margenUnitario=margen, margenPorcentaje=(margen / precio * 100) if precio else 0, materiales=[MaterialCostoRead(id=material.id, proveedorId=material.proveedor_id, proveedorNombre=material.proveedor.nombre_empresa, descripcion=material.descripcion, cantidad=material.cantidad, valor=material.valor) for material in costo.materiales])
+    return CostoProduccionRead(id=costo.id, fecha=costo.fecha, productoId=costo.producto_id, productoNombre=nombre, precioProducto=precio, cantidadProducida=costo.cantidad_producida, costoTotal=total, costoUnitario=unitario, margenUnitario=margen, margenPorcentaje=(margen / precio * 100) if precio else 0, tipo=costo.tipo, materiales=[MaterialCostoRead(id=material.id, proveedorId=material.proveedor_id, proveedorNombre=material.proveedor.nombre_empresa, descripcion=material.descripcion, cantidad=material.cantidad, valor=material.valor) for material in costo.materiales])
 
 
 def validate(payload: CostoProduccionCreate, db: Session) -> None:

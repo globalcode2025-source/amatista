@@ -26,7 +26,6 @@ export function Testimonios() {
   const [formData, setFormData] = useState<TestimonialFormData>(FORM_DEFAULTS);
   const [error, setError] = useState('');
   const [submitted, setSubmitted] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     fetchTestimoniosPublicos().then(setItems).catch(() => setItems([]));
@@ -37,12 +36,15 @@ export function Testimonios() {
   useEffect(() => {
     if (renderedTestimonials.length < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     
-    // Solo ejecutar el intervalo si no está en hover
-    if (isHovered) return;
-    
-    const timer = window.setInterval(() => setActive((current) => (current + 1) % renderedTestimonials.length), 5000);
+    // Ejecutar el intervalo siempre (sin pausa al hover)
+    const timer = window.setInterval(() => {
+      setActive((current) => {
+        const next = (current + 1) % renderedTestimonials.length;
+        return next;
+      });
+    }, 5000);
     return () => window.clearInterval(timer);
-  }, [renderedTestimonials.length, isHovered]);
+  }, [renderedTestimonials.length]);
 
   useEffect(() => {
     if (active >= renderedTestimonials.length && renderedTestimonials.length > 0) setActive(0);
@@ -103,8 +105,6 @@ export function Testimonios() {
           <div 
             ref={trackRef} 
             onScroll={handleScroll} 
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
             className="flex snap-x snap-mandatory gap-[26px] overflow-x-auto pb-2.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             {renderedTestimonials.map((testimonial, index) => (

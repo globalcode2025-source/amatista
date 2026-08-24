@@ -67,9 +67,13 @@ export interface Pedido {
   total: number;
   totalPagado: number;
   debe: number;
-  estado: 'Pendiente' | 'Completado';
+  estado: 'Pendiente' | 'Proceso' | 'Despachado' | 'Entregado';  // Estado del pedido (logística)
+  estadoVenta: 'Pendiente' | 'Completado';  // Estado de la venta (financiero)
   notas?: string;
   productos: LineaVenta[];
+  clienteNombre?: string;
+  clienteTelefono?: string;
+  clienteCiudad?: string;
 }
 
 export interface PagoVenta {

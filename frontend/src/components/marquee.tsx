@@ -14,7 +14,7 @@ export function Marquee({ items = DEFAULT_ITEMS }: MarqueeProps) {
   return (
     <div className="relative z-[3] flex overflow-hidden whitespace-nowrap bg-gold py-[13px] text-ink select-none">
       {/* Pista 1 */}
-      <div className="flex min-w-full shrink-0 animate-marquee items-center justify-around">
+      <div className="flex min-w-full shrink-0 animate-marquee items-center justify-around" style={{ animationDuration: '80s' }}>
         {items.map((item, i) => (
           <span
             key={i}
@@ -27,7 +27,7 @@ export function Marquee({ items = DEFAULT_ITEMS }: MarqueeProps) {
       </div>
 
       {/* Pista 2 (Duplicada para bucle infinito perfecto) */}
-      <div className="flex min-w-full shrink-0 animate-marquee items-center justify-around">
+      <div className="flex min-w-full shrink-0 animate-marquee items-center justify-around" style={{ animationDuration: '80s' }}>
         {items.map((item, i) => (
           <span
             key={`dup-${i}`}

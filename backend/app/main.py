@@ -10,6 +10,7 @@ from app.routers.eventos import router as eventos_router
 from app.routers.clientes import router as clientes_router
 from app.routers.productos import router as productos_router
 from app.routers.pedidos import router as pedidos_router
+from app.routers.pedidos_gestion import router as pedidos_gestion_router
 from app.routers.testimonios import router as testimonios_router
 from app.routers.gastos import router as gastos_router
 from app.routers.proveedores import router as proveedores_router
@@ -42,6 +43,7 @@ async def auth_middleware(request: Request, call_next):
         "/api/galeria",       # Galería pública
         "/api/testimonios",   # Testimonios públicos
         "/api/cuidados",      # Cuidados públicos
+        "/api/pedidos-gestion",  # Gestión de pedidos
         "/health",
         "/media",
         "/eventos-media",
@@ -92,6 +94,7 @@ app.include_router(eventos_router, prefix="/api")
 app.include_router(clientes_router, prefix="/api")
 app.include_router(productos_router, prefix="/api")
 app.include_router(pedidos_router, prefix="/api")
+app.include_router(pedidos_gestion_router, prefix="/api")
 app.include_router(testimonios_router, prefix="/api")
 app.include_router(gastos_router, prefix="/api")
 app.include_router(proveedores_router, prefix="/api")

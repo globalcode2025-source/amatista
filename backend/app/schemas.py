@@ -152,6 +152,7 @@ class PedidoBase(BaseModel):
     direccionEnvio: str
     total: float
     notas: str | None = None
+    estado: str = "Pendiente"  # Pendiente, Proceso, Despachado, Entregado
 
 
 class LineaVentaInput(BaseModel):
@@ -184,8 +185,12 @@ class PedidoRead(PedidoBase):
     id: str
     totalPagado: float
     debe: float
-    estado: str
+    estado: str  # Estado del pedido (logística)
+    estadoVenta: str  # Estado de la venta (financiero)
     productos: list[LineaVentaRead] = []
+    clienteNombre: str | None = None
+    clienteTelefono: str | None = None
+    clienteCiudad: str | None = None
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -307,6 +312,7 @@ class CostoProduccionRead(BaseModel):
     costoUnitario: float
     margenUnitario: float
     margenPorcentaje: float
+    tipo: str
     materiales: list[MaterialCostoRead]
 
 
