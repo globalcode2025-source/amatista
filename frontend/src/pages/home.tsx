@@ -10,6 +10,7 @@ import Historia from '../components/historia';
 import Ubicacion from '../components/ubicacion';
 import Cuidado from '../components/cuidado';
 import Footer from '../components/footer';
+import { Reveal } from '../components/Reveal';
 
 export default function Home() {
   return (
@@ -18,13 +19,27 @@ export default function Home() {
       <Hero />
       <Marquee />
       <Seam variant={1} background="cream" />
-      <Productos />
-      <Eventos />
-      <Galeria />
-      <Testimonios />
-      <Historia />
-      <Ubicacion />
-      <Cuidado />
+      <Reveal>
+        <Productos />
+      </Reveal>
+      <Reveal delay={100}>
+        <Eventos />
+      </Reveal>
+      <Reveal delay={200}>
+        <Galeria />
+      </Reveal>
+      <Reveal delay={300}>
+        <Testimonios />
+      </Reveal>
+      <Reveal delay={400}>
+        <Historia />
+      </Reveal>
+      <Reveal delay={500}>
+        <Ubicacion />
+      </Reveal>
+      <Reveal delay={600}>
+        <Cuidado />
+      </Reveal>
       <Footer />
     </>
   );
