@@ -146,7 +146,7 @@ export function Footer() {
         </div>
 
         <div className="flex flex-wrap items-center justify-center gap-2.5 pt-6 text-center text-[0.78rem]">
-          <span>© 2026 Amatista Velas y Aromas</span>
+          <span>© 2025 Amatista Velas y Aromas</span>
         </div>
          <div className="flex flex-wrap items-center justify-center gap-2.5 pt-2 text-center text-[0.78rem] text-cream/55">
           <span>GC - Desarrollado por GlobalCode</span>

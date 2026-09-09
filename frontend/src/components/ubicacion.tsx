@@ -8,7 +8,7 @@ export function Ubicacion() {
             Nuestro rincón en El Retiro
           </h2>
           <p className="mt-4 leading-[1.7] text-ink/68">
-            Ubicados en El Retiro, Antioquia — tierra de flores y artesanía. Aquí realizamos el Taller de Kintsugi y
+            Ubicados en El Retiro, Antioquia — tierra cuna de libertad. Aquí realizamos el Taller de Kintsugi y
             puedes recoger tu pedido si lo prefieres.
           </p>
 

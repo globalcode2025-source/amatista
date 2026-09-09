@@ -5,14 +5,12 @@ export interface TimelineItem {
 }
 
 const TIMELINE: TimelineItem[] = [
-  { year: '2023', title: 'Nace Amatista', desc: 'Desde un rincón de casa, con las primeras velas vertidas a mano.' },
-  { year: '2024', title: 'Primeros talleres', desc: 'Abrimos las puertas a encuentros de vela artesanal en comunidad.' },
+  { year: '2025', title: 'Nace Amatista', desc: 'Desde un rincón de casa, con las primeras velas vertidas a mano.' },
   {
-    year: '2025',
+    year: '2026',
     title: 'Nace la experiencia Kintsugi',
     desc: 'El arte japonés del oro se une a nuestros rituales de sanación.',
   },
-  { year: '2026', title: 'Más de 130 almas', desc: 'Una comunidad que crece encendiendo intención, un aroma a la vez.' },
 ];
 
 export function Historia() {

@@ -45,7 +45,7 @@ const BTN_OUTLINE = 'border border-cream/50 text-cream hover:border-gold hover:t
 
 export function Hero({
   location = 'El Retiro, Antioquia',
-  since = 'Desde 2026',
+  since = 'Desde 2025',
   titlePrefix = 'Enciende lo que te',
   highlightWord = 'sana',
   lead = 'Velas artesanales hechas a mano, aromas de origen y experiencias kintsugi para honrar tus cicatrices y encontrar belleza en la resiliencia.',

@@ -144,7 +144,7 @@ export default function PedidosPage() {
       render: (row) => {
         const estadoVenta = row.debe < 0.005 ? 'Completado' : 'Pendiente';
         return (
-          <span className={`rounded-full px-2 py-1 text-xs font-medium ${
+          <span className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap ${
             estadoVenta === 'Completado' 
               ? 'bg-green-100 text-green-800' 
               : 'bg-yellow-100 text-yellow-800'
@@ -306,7 +306,7 @@ export default function PedidosPage() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Buscar ventas..."
-          className="rounded-sm border border-ink/15 px-4 py-2.5 text-sm focus:border-gold focus:outline-none"
+          className="rounded-full border border-ink/15 px-4 py-2.5 text-sm focus:border-gold focus:outline-none"
         />
         <div className="flex flex-wrap gap-2">
           {(['Todos', ...ESTADOS] as const).map((state) => (
@@ -314,10 +314,10 @@ export default function PedidosPage() {
               type="button"
               key={state}
               onClick={() => setStatusFilter(state)}
-              className={`rounded-full border px-4 py-2 text-xs ${
+              className={`rounded-full px-5 py-2 text-xs font-medium transition-all ${
                 statusFilter === state
-                  ? 'border-amatista-deep bg-amatista-deep text-cream'
-                  : 'border-ink/15 text-ink/60 hover:border-gold'
+                  ? 'bg-amatista-deep text-cream shadow-md'
+                  : 'bg-cream border border-ink/30 text-ink/70 hover:border-amatista-deep hover:text-amatista-deep'
               }`}
             >
               {state}
