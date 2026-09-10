@@ -1,19 +1,26 @@
-from __future__ import annotations
-
 import os
-from pathlib import Path
-
-from dotenv import load_dotenv
 from sqlalchemy.engine import URL
 
-# Ruta de la carpeta backend
-BASE_DIR = Path(__file__).resolve().parent.parent
-
-# Cargar backend/.env
-load_dotenv(BASE_DIR / ".env")
-
-
 def get_database_url() -> str:
+    database_url = os.getenv("DATABASE_URL")
+
+    if database_url:
+        # Aseguramos que SQLAlchemy use psycopg 3
+        if database_url.startswith("postgres://"):
+            database_url = database_url.replace(
+                "postgres://",
+                "postgresql+psycopg://",
+                1
+            )
+        elif database_url.startswith("postgresql://"):
+            database_url = database_url.replace(
+                "postgresql://",
+                "postgresql+psycopg://",
+                1
+            )
+
+        return database_url
+
     url = URL.create(
         drivername="postgresql+psycopg",
         username=os.getenv("POSTGRES_USER"),

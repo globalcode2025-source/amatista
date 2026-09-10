@@ -12,6 +12,9 @@ BASE_DIR = Path(__file__).resolve().parents[1]
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
+from dotenv import load_dotenv
+load_dotenv()
+
 from app.database import Base, engine
 from app.settings import get_database_url
 from app import models  # Importa todos los modelos para que Alembic los detecte
