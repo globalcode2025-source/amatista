@@ -115,7 +115,8 @@ export const SEED_PEDIDOS: Pedido[] = [
     total: 936000,
     totalPagado: 936000,
     debe: 0,
-    estado: 'Completado',
+    estado: 'Entregado',
+    estadoVenta: 'Completado',
     notas: 'Entregar antes de las 4:00 p. m.',
     productos: [],
   },
@@ -130,6 +131,7 @@ export const SEED_PEDIDOS: Pedido[] = [
     totalPagado: 50000,
     debe: 75000,
     estado: 'Pendiente',
+    estadoVenta: 'Pendiente',
     productos: [],
   },
   {
@@ -143,6 +145,7 @@ export const SEED_PEDIDOS: Pedido[] = [
     totalPagado: 0,
     debe: 114000,
     estado: 'Pendiente',
+    estadoVenta: 'Pendiente',
     productos: [],
   },
 ];
@@ -172,6 +175,7 @@ export const SEED_GASTOS: Gasto[] = [
     fecha: '2026-08-02',
     concepto: 'Compra de insumos',
     categoria: 'Operativo',
+    tipo: 'Producto',
     monto: 245000,
   },
   {
@@ -179,6 +183,7 @@ export const SEED_GASTOS: Gasto[] = [
     fecha: '2026-08-04',
     concepto: 'Envíos y embalaje',
     categoria: 'Transporte',
+    tipo: 'General',
     monto: 68000,
   },
 ];

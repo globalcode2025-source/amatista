@@ -150,11 +150,11 @@ export default function ClientesPage() {
                     <td className="px-3 py-2 text-right">{money(sale.debe)}</td>
                     <td className="px-3 py-2">
                       <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                        sale.estado === 'Completado' 
+                        sale.estadoVenta === 'Completado' 
                           ? 'bg-success/10 text-success' 
                           : 'bg-warning/10 text-warning'
                       }`}>
-                        {sale.estado}
+                        {sale.estadoVenta}
                       </span>
                     </td>
                   </tr>

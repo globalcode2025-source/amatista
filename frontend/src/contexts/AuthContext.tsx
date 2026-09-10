@@ -1,4 +1,6 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
+import { apiUrl } from '../services/api';
 
 interface User {
   id: string;
@@ -36,7 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     formData.append('username', email);
     formData.append('password', password);
 
-    const response = await fetch('http://localhost:8000/api/auth/login', {
+    const response = await fetch(apiUrl('/api/auth/login'), {
       method: 'POST',
       body: formData,
     });

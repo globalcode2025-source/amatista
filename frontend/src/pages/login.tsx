@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiUrl } from '../services/api';
 
 interface LoginResponse {
   access_token: string;
@@ -29,7 +30,7 @@ export function Login() {
       formData.append('username', email);
       formData.append('password', password);
 
-      const response = await fetch('http://localhost:8000/api/auth/login', {
+      const response = await fetch(apiUrl('/api/auth/login'), {
         method: 'POST',
         body: formData,
       });

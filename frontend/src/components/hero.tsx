@@ -18,8 +18,6 @@ export interface HeroProps {
   lead?: string;
   /** Link del botón principal (dorado) */
   exploreHref?: string;
-  /** Link del botón secundario (outline) */
-  reserveHref?: string;
   /** Estadísticas de la barra inferior del hero */
   stats?: HeroStat[];
 }
@@ -50,7 +48,6 @@ export function Hero({
   highlightWord = 'sana',
   lead = 'Velas artesanales hechas a mano, aromas de origen y experiencias kintsugi para honrar tus cicatrices y encontrar belleza en la resiliencia.',
   exploreHref = '/catalogo',
-  reserveHref = '/#eventos',
   stats = DEFAULT_STATS,
 }: HeroProps) {
   return (

@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Home from './pages/home';
 import Catalogo from './pages/catalogo';
-import Login from './pages/Login';
+import Login from './pages/login';
 import { AuthProvider } from './contexts/AuthContext';
+import { apiUrl } from './services/api';
 import AdminLayout from './admin/AdminLayout';
 import Dashboard from './admin/pages/Dashboard';
 import Pedidos from './admin/pages/Pedidos'; //VENTAS
@@ -38,7 +39,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
         
         // Si hay token, verificar que sea válido haciendo una petición al backend
         try {
-          const response = await fetch('http://localhost:8000/api/auth/me', {
+          const response = await fetch(apiUrl('/api/auth/me'), {
             headers: {
               'Authorization': `Bearer ${token}`
             }

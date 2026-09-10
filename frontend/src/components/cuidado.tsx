@@ -31,7 +31,7 @@ const FAQS_FALLBACK: FaqItem[] = [
 
 export function Cuidado() {
   const [faqs, setFaqs] = useState<FaqItem[]>(FAQS_FALLBACK);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
 
   useEffect(() => {
     const loadCuidados = async () => {
