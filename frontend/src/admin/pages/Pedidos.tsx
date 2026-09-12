@@ -97,7 +97,8 @@ export default function PedidosPage() {
     return form.productos.reduce((sum, item) => {
       const producto = productosMap.get(item.productoId);
       if (!producto) return sum;
-      return sum + (producto.precio * item.cantidad);
+      const precioAUsar = producto.precio_descuento || producto.precio;
+      return sum + (precioAUsar * item.cantidad);
     }, 0);
   }, [form.productos, productosMap]);
 

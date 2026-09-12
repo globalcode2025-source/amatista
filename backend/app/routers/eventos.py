@@ -167,8 +167,9 @@ def list_asistentes(evento_id: str, db: Session = Depends(get_db)) -> list[Asist
     evento = db.get(models.Evento, evento_id)
     if evento is None:
         raise HTTPException(status_code=404, detail="Evento no encontrado")
+    precio_a_usar = evento.precio_descuento if evento.precio_descuento else evento.precio
     asistentes = db.scalars(select(models.AsistenteEvento).options(joinedload(models.AsistenteEvento.cliente)).where(models.AsistenteEvento.evento_id == evento_id).order_by(models.AsistenteEvento.id)).all()
-    return [_asistente_read(asistente, evento.precio) for asistente in asistentes]
+    return [_asistente_read(asistente, precio_a_usar) for asistente in asistentes]
 
 
 @router.post("/{evento_id}/asistentes", response_model=AsistenteEventoRead, status_code=status.HTTP_201_CREATED)
