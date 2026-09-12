@@ -6,10 +6,11 @@ import { FormField, type FieldConfig } from '../components/FormField';
 import type { ProductoAdmin, Categoria } from '../types';
 import { createProducto, deleteProducto, fetchProductos, resolveProductoImage, updateProducto } from '../../services/productos';
 import { fetchCategorias, createCategoria, deleteCategoria } from '../../services/categorias';
+import { formatCurrency, parseCurrency } from '../../utils/format';
 
 const money = (n: number) => `$${n.toLocaleString('es-CO')}`;
 type Form = Omit<ProductoAdmin, 'id' | 'imagen'> & { imagenFile: File | null; preview: string };
-const empty: Form = { nombre: '', categoria: '', precio: '' as any, stock: 0, descripcion: '', imagenFile: null, preview: '' };
+const empty: Form = { nombre: '', categoria: '', precio: 0 as any, stock: 0, descripcion: '', imagenFile: null, preview: '' };
 
 export default function ProductosPage() {
   const [items, setItems] = useState<ProductoAdmin[]>([]);
@@ -20,7 +21,6 @@ export default function ProductosPage() {
   const [categoriasOpen, setCategoriasOpen] = useState(false);
   const [nuevaCategoria, setNuevaCategoria] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('Todas');
 
@@ -42,18 +42,23 @@ export default function ProductosPage() {
     }
     return categorias.map((cat) => ({ value: cat.nombre, label: cat.nombre }));
   }, [categorias]);
-  const fields: FieldConfig[] = [{ key: 'nombre', label: 'Nombre', type: 'text', required: true }, { key: 'categoria', label: 'Categoría', type: 'select', required: true, options: categoriaOptions }, { key: 'precio', label: 'Precio (COP)', type: 'number', required: true }, { key: 'stock', label: 'Stock', type: 'number', required: true }, { key: 'descripcion', label: 'Descripción', type: 'textarea', required: true }];
+  const fields: FieldConfig[] = [{ key: 'nombre', label: 'Nombre', type: 'text', required: true }, { key: 'categoria', label: 'Categoría', type: 'select', required: true, options: categoriaOptions }, { key: 'precio', label: 'Precio (COP)', type: 'text', required: true, formatCurrency: true }, { key: 'stock', label: 'Stock', type: 'number', required: true }, { key: 'descripcion', label: 'Descripción', type: 'textarea', required: true }];
   const columns: ColumnConfig<ProductoAdmin>[] = [{ key: 'imagen', label: 'Imagen', render: (row) => <img src={resolveProductoImage(row.imagen)} className="h-12 w-16 rounded-sm object-cover" /> }, { key: 'nombre', label: 'Nombre' }, { key: 'categoria', label: 'Categoría' }, { key: 'precio', label: 'Precio', render: (row) => money(row.precio) }, { key: 'stock', label: 'Stock', render: (row) => <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${row.stock === 0 ? 'bg-danger/10 text-danger' : 'bg-success/15 text-success'}`}>{row.stock}</span> }];
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     try {
-      const wasEditing = Boolean(edit);
-      if (!edit && !form.imagenFile) return window.alert('Selecciona una imagen.');
-      const { preview, ...input } = form;
-      if (edit) await updateProducto(edit.id, input); else await createProducto({ ...input, imagenFile: form.imagenFile! });
-      setOpen(false); await load(); setSuccess(`Producto ${wasEditing ? 'actualizado' : 'guardado'} correctamente.`);
-    } catch (err) { window.alert(err instanceof Error ? err.message : 'No se pudo guardar el producto.'); }
+      if (!edit && !form.imagenFile) return window.alert('Selecciona una imagen desde tu dispositivo.');
+      if (form.precio === 0) return window.alert('Ingresa el precio del producto.');
+      const { imagenFile, preview, ...input } = form;
+      const productInput = { ...input, precio: Number(form.precio) };
+      if (edit) await updateProducto(edit.id, productInput);
+      else await createProducto({ ...productInput, imagenFile: form.imagenFile! });
+      setOpen(false);
+      await load();
+    } catch (err) {
+      window.alert(err instanceof Error ? err.message : 'No se pudo guardar el producto');
+    }
   };
 
   const remove = async (item: ProductoAdmin) => { try { await deleteProducto(item.id); await load(); } catch (err) { window.alert(err instanceof Error ? err.message : 'No se pudo eliminar el producto.'); } };

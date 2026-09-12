@@ -6,6 +6,7 @@ import type { EstadoEvento, EventoAdmin, TipoContenido } from '../types';
 import { addPagoAsistente, createAsistenteEvento, createEvento, deleteEvento, fetchAsistentesEvento, fetchEventos, resolveEventoMediaUrl, updateEvento, type AsistenteEvento } from '../../services/eventos';
 import { fetchClientes } from '../../services/clientes';
 import type { Cliente } from '../types';
+import { formatCurrency, parseCurrency } from '../../utils/format';
 
 const ESTADOS: EstadoEvento[] = ['Próximo', 'Realizado', 'Cancelado'];
 const TIPOS: TipoContenido[] = ['Imagen', 'Video'];
@@ -47,7 +48,8 @@ export default function EventosPage() {
     { key: 'nombre', label: 'Nombre del evento', type: 'text', required: true }, { key: 'frase', label: 'Frase destacada', type: 'text', required: true }, { key: 'descripcion', label: 'Descripción', type: 'textarea', required: true },
     { key: 'fecha', label: 'Fecha', type: 'date', required: true }, { key: 'hora', label: 'Hora', type: 'time', required: true }, { key: 'ubicacion', label: 'Ubicación', type: 'text', required: true },
     { key: 'duracion', label: 'Duración (minutos)', type: 'number', required: true }, { key: 'queTrae', label: 'Qué incluye (un elemento por línea)', type: 'textarea', required: true },
-    { key: 'cupos', label: 'Cupos totales', type: 'number', required: true }, { key: 'cuposDisponibles', label: 'Cupos disponibles', type: 'number', required: true }, { key: 'precio', label: 'Precio (COP)', type: 'number', required: true },
+    { key: 'cupos', label: 'Cupos totales', type: 'number', required: true }, { key: 'cuposDisponibles', label: 'Cupos disponibles', type: 'number', required: true }, { key: 'precio', label: 'Precio (COP)', type: 'text', required: true, formatCurrency: true },
+    { key: 'estado', label: 'Estado', type: 'select', required: true, options: ESTADOS.map((e) => ({ label: e, value: e })) }
   ];
   const columns: ColumnConfig<EventoAdmin>[] = [
     { key: 'nombre', label: 'Evento' }, { key: 'media', label: 'Archivo', render: (row) => row.tipo === 'Video' ? <video src={resolveEventoMediaUrl(row.media)} className="h-12 w-16 rounded-sm object-cover" muted /> : <img src={resolveEventoMediaUrl(row.media)} alt={row.nombre} className="h-12 w-16 rounded-sm object-cover" /> },

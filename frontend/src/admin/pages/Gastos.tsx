@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { DataTable, type ColumnConfig } from '../components/DataTable';
-import { FormField, type FieldConfig } from '../components/FormField';
 import { Modal } from '../components/Modal';
+import { FormField, type FieldConfig } from '../components/FormField';
 import type { Gasto } from '../types';
 import { createGasto, deleteGasto, fetchGastos, updateGasto } from '../../services/gastos';
+import { formatCurrency, parseCurrency } from '../../utils/format';
 
 const EMPTY_FORM: Omit<Gasto, 'id'> = { fecha: '', concepto: '', categoria: 'Otro', tipo: 'General', monto: 0 };
 const CATEGORIAS = ['Transporte', 'Comida', 'Papelería', 'Operativo', 'Otro'] as const;
@@ -44,7 +45,7 @@ export default function GastosPage() {
     { key: 'concepto', label: 'Concepto', type: 'text', required: true }, 
     { key: 'categoria', label: 'Categoría', type: 'select', required: true, options: CATEGORIAS.map((categoria) => ({ value: categoria, label: categoria })) },
     { key: 'tipo', label: 'Tipo', type: 'select', required: true, options: TIPOS.map((tipo) => ({ value: tipo, label: tipo })) },
-    { key: 'monto', label: 'Monto (COP)', type: 'number', required: true },
+    { key: 'monto', label: 'Monto (COP)', type: 'text', required: true, formatCurrency: true },
   ];
 
   const openNew = () => { setEditing(null); setForm(EMPTY_FORM); setModalOpen(true); };

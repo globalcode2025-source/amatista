@@ -6,6 +6,7 @@ import { fetchClientes } from '../../services/clientes';
 import { fetchProductos } from '../../services/productos';
 import { createPedido, deletePedido, fetchPedidos, updatePedido, fetchPagosPedido, createPagoPedido } from '../../services/pedidos';
 import type { CreateInput } from '../../services/pedidos';
+import { formatCurrency, parseCurrency } from '../../utils/format';
 
 const money = (value: number) => `$${value.toLocaleString('es-CO')}`;
 const ESTADOS: ('Pendiente' | 'Completado')[] = ['Pendiente', 'Completado'];
@@ -32,7 +33,7 @@ export default function PedidosPage() {
   const [selectedPedido, setSelectedPedido] = useState<Pedido | null>(null);
   const [pagos, setPagos] = useState<PagoVenta[]>([]);
   const [pagosLoading, setPagosLoading] = useState(false);
-  const [nuevoPagoMonto, setNuevoPagoMonto] = useState('');
+  const [nuevoPagoMontoDisplay, setNuevoPagoMontoDisplay] = useState('');
   const [success, setSuccess] = useState('');
 
   const load = async () => {
@@ -161,6 +162,7 @@ export default function PedidosPage() {
     setForm(EMPTY_FORM);
     setClienteQuery('');
     setProductoQueries(['']);
+    setNuevoPagoMontoDisplay('');
     setModalOpen(true);
   };
 
@@ -176,6 +178,7 @@ export default function PedidosPage() {
     });
     setClienteQuery(clientesMap.get(item.clienteId) ?? '');
     setProductoQueries(productosList.map(p => productosMap.get(p.productoId)?.nombre ?? ''));
+    setNuevoPagoMontoDisplay('');
     setModalOpen(true);
   };
 
@@ -256,15 +259,15 @@ export default function PedidosPage() {
     e.preventDefault();
     if (!selectedPedido) return;
     
-    const monto = parseFloat(nuevoPagoMonto);
-    if (isNaN(monto) || monto <= 0) {
+    const monto = parseCurrency(nuevoPagoMontoDisplay);
+    if (monto <= 0) {
       window.alert('El monto debe ser mayor a 0');
       return;
     }
 
     try {
       await createPagoPedido(selectedPedido.id, monto);
-      setNuevoPagoMonto('');
+      setNuevoPagoMontoDisplay('');
       await load();
       setPagos(await fetchPagosPedido(selectedPedido.id));
       setSuccess('Pago registrado correctamente');
@@ -359,7 +362,7 @@ export default function PedidosPage() {
           setPagosModalOpen(false);
           setSelectedPedido(null);
           setPagos([]);
-          setNuevoPagoMonto('');
+          setNuevoPagoMontoDisplay('');
         }}
       >
         <div className="space-y-4">
@@ -412,12 +415,11 @@ export default function PedidosPage() {
           {selectedPedido && (selectedPedido.debe ?? 0) > 0 && (
             <form onSubmit={handleNuevoPago} className="flex gap-2">
               <input
-                type="number"
-                step="0.01"
+                type="text"
+                inputMode="numeric"
                 min="0"
-                max={selectedPedido.debe ?? 0}
-                value={nuevoPagoMonto}
-                onChange={(e) => setNuevoPagoMonto(e.target.value)}
+                value={nuevoPagoMontoDisplay}
+                onChange={(e) => setNuevoPagoMontoDisplay(formatCurrency(e.target.value))}
                 placeholder={`Monto (máx: ${money(selectedPedido.debe ?? 0)})`}
                 className="flex-1 rounded-sm border border-ink/15 px-3 py-2 text-sm focus:border-gold focus:outline-none"
               />

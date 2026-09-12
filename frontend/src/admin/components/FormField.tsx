@@ -11,6 +11,7 @@ export interface FieldConfig {
   required?: boolean;
   placeholder?: string;
   className?: string;
+  formatCurrency?: boolean;
 }
 
 interface FormFieldProps {
@@ -65,12 +66,21 @@ export function FormField({ field, value, onChange }: FormFieldProps) {
     <label className={`block ${field.className ?? ''}`}>
       <span className="mb-1.5 block text-xs uppercase tracking-wide text-ink/55">{field.label}</span>
       <input
-        type={field.type}
+        type={field.formatCurrency ? 'text' : field.type}
+        inputMode={field.formatCurrency ? 'numeric' : undefined}
         className={baseClass}
         required={field.required}
         placeholder={field.placeholder}
         value={value ?? ''}
-          onChange={(e) => onChange(field.key, field.type === 'number' ? (e.target.value === '' ? '' : Number(e.target.value)) : e.target.value)}
+        onChange={(e) => {
+          if (field.formatCurrency) {
+            const formatted = formatCurrency(e.target.value);
+            onChange(field.key, parseCurrency(formatted));
+            e.target.value = formatted;
+          } else {
+            onChange(field.key, field.type === 'number' ? (e.target.value === '' ? '' : Number(e.target.value)) : e.target.value);
+          }
+        }}
       />
     </label>
   );

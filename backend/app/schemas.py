@@ -105,7 +105,7 @@ class PagoAsistenteCreate(BaseModel):
 class ClienteBase(BaseModel):
     nombre: str
     telefono: str
-    email: str
+    email: str | None = None
     ciudad: str
     direccion: str | None = None
     notas: str | None = None

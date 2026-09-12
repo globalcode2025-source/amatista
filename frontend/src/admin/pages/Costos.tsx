@@ -6,6 +6,7 @@ import { createCosto, deleteCosto, fetchCostos, updateCosto } from '../../servic
 import { fetchProductos } from '../../services/productos';
 import { fetchProveedores } from '../../services/proveedores';
 import { fetchEventos } from '../../services/eventos';
+import { formatCurrency, parseCurrency } from '../../utils/format';
 
 const money = (value: number) => `$${Math.round(value).toLocaleString('es-CO')}`;
 const emptyMaterial = (): MaterialCosto => ({ proveedorId: '', descripcion: '', cantidad: '', valor: 0 });
@@ -29,6 +30,7 @@ export default function CostosPage() {
   const [eventQuery, setEventQuery] = useState('');
   const [providerQueries, setProviderQueries] = useState<string[]>(['']);
   const [quantityProduced, setQuantityProduced] = useState(1);
+  const [quantityProducedDisplay, setQuantityProducedDisplay] = useState('');
   const [materials, setMaterials] = useState<MaterialCosto[]>([emptyMaterial()]);
 
   const load = async () => {
@@ -81,16 +83,34 @@ export default function CostosPage() {
     setMaterials([emptyMaterial()]); 
     setProviderQueries(['']); 
   };
-  const openNew = () => { reset(); setOpen(true); };
-  const openEdit = (item: CostoProduccion) => {
-    setEditing(item); 
-    setProductId(item.productoId); 
-    setProductQuery(item.productoNombre); 
-    setQuantityProduced(item.cantidadProducida);
-    setMaterials(item.materiales.map(({ proveedorId, descripcion, cantidad, valor }) => ({ proveedorId, descripcion, cantidad, valor })));
-    setProviderQueries(item.materiales.map((material) => material.proveedorNombre ?? providers.find((provider) => provider.id === material.proveedorId)?.nombreEmpresa ?? ''));
+  const openNew = () => {
+    setEditing(null);
+    setTipoCosto('producto');
+    setProductId('');
+    setEventId('');
+    setProductQuery('');
+    setEventQuery('');
+    setProviderQueries(['']);
+    setQuantityProduced(1);
+    setQuantityProducedDisplay('');
+    setMaterials([emptyMaterial()]);
     setOpen(true);
   };
+
+  const openEdit = (item: CostoProduccion) => {
+    setEditing(item);
+    setTipoCosto(item.tipo);
+    setProductId(item.productoId);
+    setEventId(item.productoId);
+    setProductQuery(item.productoNombre);
+    setEventQuery(item.productoNombre);
+    setProviderQueries(item.materiales.map(m => m.proveedorNombre));
+    setQuantityProduced(item.cantidadProducida);
+    setQuantityProducedDisplay(formatCurrency(String(item.cantidadProducida)));
+    setMaterials(item.materiales.map(m => ({ proveedorId: m.proveedorId, descripcion: m.descripcion, cantidad: m.cantidad, valor: m.valor })));
+    setOpen(true);
+  };
+
   const setMaterial = (index: number, key: keyof MaterialCosto, value: string | number) => setMaterials((current) => current.map((material, materialIndex) => materialIndex === index ? { ...material, [key]: value } : material));
   const selectProduct = (product: ProductoAdmin) => { setProductId(product.id); setProductQuery(product.nombre); };
   const selectEvent = (event: EventoAdmin) => { setEventId(event.id); setEventQuery(event.nombre); };
@@ -239,9 +259,14 @@ export default function CostosPage() {
               <input 
                 required 
                 min="1" 
-                type="number" 
-                value={quantityProduced === 0 ? '' : quantityProduced}
-                onChange={(event) => setQuantityProduced(event.target.value === '' ? 0 : Number(event.target.value))}
+                type="text"
+                inputMode="numeric"
+                value={quantityProducedDisplay}
+                onChange={(event) => {
+                  const formatted = formatCurrency(event.target.value);
+                  setQuantityProducedDisplay(formatted);
+                  setQuantityProduced(parseCurrency(formatted));
+                }}
                 className="w-full rounded-sm border border-ink/15 bg-white px-3.5 py-2.5 text-sm" 
               />
             </label>

@@ -22,7 +22,7 @@ export default function ClientesPage() {
   const [sales, setSales] = useState<Pedido[]>([]);
   const [salesLoading, setSalesLoading] = useState(false);
   const [success, setSuccess] = useState('');
-  const fields: FieldConfig[] = [{ key: 'nombre', label: 'Nombre completo', type: 'text', required: true }, { key: 'telefono', label: 'Teléfono', type: 'tel', required: true }, { key: 'email', label: 'Correo electrónico', type: 'email', required: true }, { key: 'ciudad', label: 'Ciudad', type: 'text', required: true }, { key: 'direccion', label: 'Dirección', type: 'text' }, { key: 'notas', label: 'Notas', type: 'textarea' }];
+  const fields: FieldConfig[] = [{ key: 'nombre', label: 'Nombre completo', type: 'text', required: true }, { key: 'telefono', label: 'Teléfono', type: 'tel', required: true }, { key: 'email', label: 'Correo electrónico', type: 'email', required: false }, { key: 'ciudad', label: 'Ciudad', type: 'text', required: true }, { key: 'direccion', label: 'Dirección', type: 'text' }, { key: 'notas', label: 'Notas', type: 'textarea' }];
   const columns: ColumnConfig<Cliente>[] = [{ key: 'nombre', label: 'Nombre' }, { key: 'telefono', label: 'Teléfono' }, { key: 'email', label: 'Correo' }, { key: 'ciudad', label: 'Ciudad' }, { key: 'direccion', label: 'Dirección' }];
   const load = async () => { try { setLoading(true); setError(''); setItems(await fetchClientes()); } catch (err) { setError(err instanceof Error ? err.message : 'No se pudieron cargar los clientes'); } finally { setLoading(false); } };
   useEffect(() => { void load(); }, []);
