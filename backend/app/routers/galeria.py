@@ -9,12 +9,14 @@ from sqlalchemy.orm import Session
 from app import models
 from app.database import get_db
 from app.schemas import GaleriaCreate, GaleriaRead, GaleriaUpdate
-from app.services.cloudinary import upload_image, delete_image
+from app.services.cloudinary import upload_image, upload_video, delete_image
 
 router = APIRouter(prefix="/galeria", tags=["Galería"])
 
 
-def _save_upload_file(upload: UploadFile) -> str:
+def _save_upload_file(upload: UploadFile, tipo: str = "Imagen") -> str:
+    if tipo == "Video":
+        return upload_video(upload, folder="galeria")
     return upload_image(upload, folder="galeria")
 
 
@@ -58,7 +60,7 @@ def create_galeria(
     media_file: UploadFile = File(...),
     db: Session = Depends(get_db),
 ) -> models.Galeria:
-    media = _save_upload_file(media_file)
+    media = _save_upload_file(media_file, tipo)
     galeria = models.Galeria(id=str(uuid4()), titulo=titulo, tipo=tipo, media=media, descripcion=descripcion)
     db.add(galeria)
     db.commit()
@@ -87,7 +89,7 @@ def update_galeria(
         galeria.descripcion = descripcion
     if media_file is not None:
         _delete_media_file(galeria.media)
-        galeria.media = _save_upload_file(media_file)
+        galeria.media = _save_upload_file(media_file, galeria.tipo)
 
     db.commit()
     db.refresh(galeria)

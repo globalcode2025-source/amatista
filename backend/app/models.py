@@ -24,7 +24,7 @@ class Cliente(Base):
     id: Mapped[str] = mapped_column(String(40), primary_key=True)
     nombre: Mapped[str] = mapped_column(String(150), nullable=False)
     telefono: Mapped[str] = mapped_column(String(40), nullable=False)
-    email: Mapped[str] = mapped_column(String(150), nullable=False, unique=True)
+    email: Mapped[str | None] = mapped_column(String(150), nullable=True)
     ciudad: Mapped[str] = mapped_column(String(100), nullable=False)
     direccion: Mapped[str | None] = mapped_column(String(255))
     notas: Mapped[str | None] = mapped_column(Text)

@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session, joinedload
 from app import models
 from app.database import get_db
 from app.schemas import AsistenteEventoCreate, AsistenteEventoRead, EventoRead, PagoAsistenteCreate
-from app.services.cloudinary import upload_image, delete_image
+from app.services.cloudinary import upload_image, upload_video, delete_image
 
 router = APIRouter(prefix="/eventos", tags=["Eventos"])
 ALLOWED_TYPES = {"Imagen": "image/", "Video": "video/"}
@@ -24,7 +24,10 @@ def _save_upload_file(upload: UploadFile, tipo: str) -> str:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=f"El archivo debe ser de tipo {tipo.lower()}.")
     
     folder = "eventos" if tipo == "Imagen" else "eventos-videos"
-    return upload_image(upload, folder=folder)
+    if tipo == "Imagen":
+        return upload_image(upload, folder=folder)
+    else:
+        return upload_video(upload, folder=folder)
 
 
 def _delete_media_file(media_path: str | None) -> None:
