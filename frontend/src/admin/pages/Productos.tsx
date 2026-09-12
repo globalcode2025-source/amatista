@@ -49,10 +49,13 @@ export default function ProductosPage() {
     try {
       if (!edit && !form.imagenFile) return window.alert('Selecciona una imagen desde tu dispositivo.');
       if (form.precio === 0) return window.alert('Ingresa el precio del producto.');
-      const { imagenFile, preview, ...input } = form;
+      const { preview, ...input } = form;
       const productInput = { ...input, precio: Number(form.precio) };
-      if (edit) await updateProducto(edit.id, productInput);
-      else await createProducto({ ...productInput, imagenFile: form.imagenFile! });
+      if (edit) {
+        await updateProducto(edit.id, productInput);
+      } else {
+        await createProducto({ ...productInput, imagenFile: form.imagenFile! });
+      }
       setOpen(false);
       await load();
     } catch (err) {
