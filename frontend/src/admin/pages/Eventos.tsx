@@ -6,7 +6,6 @@ import type { EstadoEvento, EventoAdmin, TipoContenido } from '../types';
 import { addPagoAsistente, createAsistenteEvento, createEvento, deleteEvento, fetchAsistentesEvento, fetchEventos, resolveEventoMediaUrl, updateEvento, type AsistenteEvento } from '../../services/eventos';
 import { fetchClientes } from '../../services/clientes';
 import type { Cliente } from '../types';
-import { formatCurrency, parseCurrency } from '../../utils/format';
 
 const ESTADOS: EstadoEvento[] = ['Próximo', 'Realizado', 'Cancelado'];
 const TIPOS: TipoContenido[] = ['Imagen', 'Video'];

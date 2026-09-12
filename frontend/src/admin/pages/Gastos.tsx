@@ -4,7 +4,6 @@ import { Modal } from '../components/Modal';
 import { FormField, type FieldConfig } from '../components/FormField';
 import type { Gasto } from '../types';
 import { createGasto, deleteGasto, fetchGastos, updateGasto } from '../../services/gastos';
-import { formatCurrency, parseCurrency } from '../../utils/format';
 
 const EMPTY_FORM: Omit<Gasto, 'id'> = { fecha: '', concepto: '', categoria: 'Otro', tipo: 'General', monto: 0 };
 const CATEGORIAS = ['Transporte', 'Comida', 'Papelería', 'Operativo', 'Otro'] as const;

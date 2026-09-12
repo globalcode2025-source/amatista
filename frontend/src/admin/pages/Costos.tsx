@@ -72,17 +72,6 @@ export default function CostosPage() {
     { key: 'margenPorcentaje', label: 'Margen %', render: (item) => `${item.margenPorcentaje.toFixed(1)}%` },
   ];
 
-  const reset = () => { 
-    setEditing(null); 
-    setTipoCosto('producto');
-    setProductId(''); 
-    setEventId('');
-    setProductQuery(''); 
-    setEventQuery('');
-    setQuantityProduced(1); 
-    setMaterials([emptyMaterial()]); 
-    setProviderQueries(['']); 
-  };
   const openNew = () => {
     setEditing(null);
     setTipoCosto('producto');
@@ -99,12 +88,12 @@ export default function CostosPage() {
 
   const openEdit = (item: CostoProduccion) => {
     setEditing(item);
-    setTipoCosto(item.tipo);
+    setTipoCosto(item.tipo as TipoCosto);
     setProductId(item.productoId);
     setEventId(item.productoId);
     setProductQuery(item.productoNombre);
     setEventQuery(item.productoNombre);
-    setProviderQueries(item.materiales.map(m => m.proveedorNombre));
+    setProviderQueries(item.materiales.map(m => m.proveedorNombre ?? ''));
     setQuantityProduced(item.cantidadProducida);
     setQuantityProducedDisplay(formatCurrency(String(item.cantidadProducida)));
     setMaterials(item.materiales.map(m => ({ proveedorId: m.proveedorId, descripcion: m.descripcion, cantidad: m.cantidad, valor: m.valor })));
