@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import date, datetime, time
-from pathlib import Path
 from uuid import uuid4
 from zoneinfo import ZoneInfo
 
@@ -12,9 +11,9 @@ from sqlalchemy.orm import Session, joinedload
 from app import models
 from app.database import get_db
 from app.schemas import AsistenteEventoCreate, AsistenteEventoRead, EventoRead, PagoAsistenteCreate
+from app.services.cloudinary import upload_image, delete_image
 
 router = APIRouter(prefix="/eventos", tags=["Eventos"])
-MEDIA_DIR = Path(__file__).resolve().parent.parent.parent / "uploads" / "eventos"
 ALLOWED_TYPES = {"Imagen": "image/", "Video": "video/"}
 COLUMBIA_TZ = ZoneInfo("America/Bogota")
 
@@ -23,22 +22,14 @@ def _save_upload_file(upload: UploadFile, tipo: str) -> str:
     expected_prefix = ALLOWED_TYPES[tipo]
     if not upload.content_type or not upload.content_type.startswith(expected_prefix):
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=f"El archivo debe ser de tipo {tipo.lower()}.")
-
-    MEDIA_DIR.mkdir(parents=True, exist_ok=True)
-    suffix = Path(upload.filename or "").suffix.lower()
-    destination = MEDIA_DIR / f"{uuid4()}{suffix}"
-    with destination.open("wb") as buffer:
-        while chunk := upload.file.read(1024 * 1024):
-            buffer.write(chunk)
-    return f"/eventos-media/{destination.name}"
+    
+    folder = "eventos" if tipo == "Imagen" else "eventos-videos"
+    return upload_image(upload, folder=folder)
 
 
 def _delete_media_file(media_path: str | None) -> None:
-    if not media_path or not media_path.startswith("/eventos-media/"):
-        return
-    file_path = MEDIA_DIR / media_path.removeprefix("/eventos-media/")
-    if file_path.exists():
-        file_path.unlink()
+    if media_path:
+        delete_image(media_path)
 
 
 def _validate_values(tipo: str, cupos: int, cupos_disponibles: int, duracion: int, precio: float) -> None:
