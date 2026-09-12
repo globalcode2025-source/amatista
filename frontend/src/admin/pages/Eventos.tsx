@@ -12,7 +12,7 @@ const TIPOS: TipoContenido[] = ['Imagen', 'Video'];
 const money = (value: number) => `$${value.toLocaleString('es-CO')}`;
 type EventForm = Omit<EventoAdmin, 'id' | 'media' | 'precio'> & { precio: number | ''; mediaFile: File | null; mediaPreview: string };
 type AttendeeForm = { clienteId: string; pago: number | '' };
-const EMPTY_FORM: EventForm = { nombre: '', tipo: 'Imagen', descripcion: '', fecha: '', hora: '', ubicacion: '', duracion: 180, frase: '', queTrae: '', cupos: 1, cuposDisponibles: 1, precio: '', estado: 'Próximo', mediaFile: null, mediaPreview: '' };
+const EMPTY_FORM: EventForm = { nombre: '', tipo: 'Imagen', descripcion: '', fecha: '', hora: '', ubicacion: '', duracion: 180, frase: '', queTrae: '', cupos: 1, cuposDisponibles: 1, precio: '', descuento: undefined, precio_descuento: undefined, estado: 'Próximo', mediaFile: null, mediaPreview: '' };
 const EMPTY_ATTENDEE: AttendeeForm = { clienteId: '', pago: '' };
 
 export default function EventosPage() {
@@ -48,6 +48,7 @@ export default function EventosPage() {
     { key: 'fecha', label: 'Fecha', type: 'date', required: true }, { key: 'hora', label: 'Hora', type: 'time', required: true }, { key: 'ubicacion', label: 'Ubicación', type: 'text', required: true },
     { key: 'duracion', label: 'Duración (minutos)', type: 'number', required: true }, { key: 'queTrae', label: 'Qué incluye (un elemento por línea)', type: 'textarea', required: true },
     { key: 'cupos', label: 'Cupos totales', type: 'number', required: true }, { key: 'cuposDisponibles', label: 'Cupos disponibles', type: 'number', required: true }, { key: 'precio', label: 'Precio (COP)', type: 'text', required: true, formatCurrency: true },
+    { key: 'descuento', label: 'Descuento (%)', type: 'number', required: false },
     { key: 'estado', label: 'Estado', type: 'select', required: true, options: ESTADOS.map((e) => ({ label: e, value: e })) }
   ];
   const columns: ColumnConfig<EventoAdmin>[] = [
@@ -59,6 +60,18 @@ export default function EventosPage() {
   const openEdit = (item: EventoAdmin) => { setEditing(item); setForm({ ...item, hora: item.hora.slice(0, 5), mediaFile: null, mediaPreview: resolveEventoMediaUrl(item.media) }); setModalOpen(true); };
   const fileChange = (event: ChangeEvent<HTMLInputElement>) => { const mediaFile = event.target.files?.[0] ?? null; setForm((old) => ({ ...old, mediaFile, mediaPreview: mediaFile ? URL.createObjectURL(mediaFile) : editing ? resolveEventoMediaUrl(editing.media) : '' })); };
   const submit = async (event: FormEvent) => { event.preventDefault(); try { if (!editing && !form.mediaFile) return window.alert('Selecciona una imagen o un video desde tu dispositivo.'); if (form.precio === '') return window.alert('Ingresa el precio del evento.'); if (form.cuposDisponibles > form.cupos) return window.alert('Los cupos disponibles no pueden superar los cupos totales.'); const { mediaPreview, ...input } = form; const eventInput = { ...input, precio: Number(form.precio) }; if (editing) await updateEvento(editing.id, eventInput); else await createEvento({ ...eventInput, mediaFile: form.mediaFile! }); setModalOpen(false); await load(); } catch (err) { window.alert(err instanceof Error ? err.message : 'No se pudo guardar el evento'); } };
+
+  // Calcular precio con descuento automáticamente
+  useEffect(() => {
+    if (form.descuento && form.precio) {
+      const precioOriginal = Number(form.precio);
+      const descuento = Number(form.descuento);
+      const precioConDescuento = precioOriginal - (precioOriginal * descuento / 100);
+      setForm((old) => ({ ...old, precio_descuento: precioConDescuento }));
+    } else {
+      setForm((old) => ({ ...old, precio_descuento: undefined }));
+    }
+  }, [form.descuento, form.precio]);
   const remove = async (item: EventoAdmin) => { try { await deleteEvento(item.id); await load(); } catch (err) { window.alert(err instanceof Error ? err.message : 'No se pudo eliminar el evento'); } };
   const viewAttendees = async (item: EventoAdmin) => { setViewingEvent(item); setAttendeesError(''); try { setAttendees(await fetchAsistentesEvento(item.id)); } catch (err) { setAttendeesError(err instanceof Error ? err.message : 'No se pudieron cargar los asistentes'); } };
   const openRegistration = async () => { const availableEvent = items.find((item) => item.estado === 'Próximo' && item.cuposDisponibles > 0); setRegistrationEventId(availableEvent?.id ?? ''); setAttendeeForm(EMPTY_ATTENDEE); setClientQuery(''); setAttendeesError(''); setRegistrationOpen(true); try { setClients(await fetchClientes()); } catch (err) { setAttendeesError(err instanceof Error ? err.message : 'No se pudieron cargar los clientes'); } };

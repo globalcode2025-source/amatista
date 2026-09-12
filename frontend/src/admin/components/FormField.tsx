@@ -73,7 +73,7 @@ export function FormField({ field, value, onChange }: FormFieldProps) {
         className={baseClass}
         required={field.required}
         placeholder={field.placeholder}
-        value={value ?? ''}
+        value={field.formatCurrency && typeof value === 'number' ? formatCurrency(String(value)) : value ?? ''}
         onChange={(e) => {
           if (field.formatCurrency) {
             const formatted = formatCurrency(e.target.value);

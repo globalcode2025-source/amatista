@@ -24,6 +24,8 @@ export interface ProductoAdmin {
   nombre: string;
   categoria: string;
   precio: number;
+  descuento?: number;
+  precio_descuento?: number;
   stock: number;
   descripcion: string;
   imagen: string;
@@ -46,6 +48,8 @@ export interface EventoAdmin {
   cupos: number;
   cuposDisponibles: number;
   precio: number;
+  descuento?: number;
+  precio_descuento?: number;
   estado: EstadoEvento;
 }
 

@@ -72,6 +72,8 @@ class EventoBase(BaseModel):
     cupos: int
     cuposDisponibles: int
     precio: float
+    descuento: float | None = None
+    precio_descuento: float | None = None
     estado: str
 
 
@@ -134,6 +136,8 @@ class ProductoBase(BaseModel):
     nombre: str
     categoria: str
     precio: float
+    descuento: float | None = None
+    precio_descuento: float | None = None
     stock: int
     descripcion: str
     imagen: str

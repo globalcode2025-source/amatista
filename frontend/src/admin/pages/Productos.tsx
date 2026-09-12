@@ -9,7 +9,7 @@ import { fetchCategorias, createCategoria, deleteCategoria } from '../../service
 
 const money = (n: number) => `$${n.toLocaleString('es-CO')}`;
 type Form = Omit<ProductoAdmin, 'id' | 'imagen'> & { imagenFile: File | null; preview: string };
-const empty: Form = { nombre: '', categoria: '', precio: 0 as any, stock: 0, descripcion: '', imagenFile: null, preview: '' };
+const empty: Form = { nombre: '', categoria: '', precio: 0 as any, descuento: undefined, precio_descuento: undefined, stock: 0, descripcion: '', imagenFile: null, preview: '' };
 
 export default function ProductosPage() {
   const [items, setItems] = useState<ProductoAdmin[]>([]);
@@ -41,7 +41,7 @@ export default function ProductosPage() {
     }
     return categorias.map((cat) => ({ value: cat.nombre, label: cat.nombre }));
   }, [categorias]);
-  const fields: FieldConfig[] = [{ key: 'nombre', label: 'Nombre', type: 'text', required: true }, { key: 'categoria', label: 'Categoría', type: 'select', required: true, options: categoriaOptions }, { key: 'precio', label: 'Precio (COP)', type: 'text', required: true, formatCurrency: true }, { key: 'stock', label: 'Stock', type: 'number', required: true }, { key: 'descripcion', label: 'Descripción', type: 'textarea', required: true }];
+  const fields: FieldConfig[] = [{ key: 'nombre', label: 'Nombre', type: 'text', required: true }, { key: 'categoria', label: 'Categoría', type: 'select', required: true, options: categoriaOptions }, { key: 'precio', label: 'Precio (COP)', type: 'text', required: true, formatCurrency: true }, { key: 'descuento', label: 'Descuento (%)', type: 'number', required: false }, { key: 'stock', label: 'Stock', type: 'number', required: true }, { key: 'descripcion', label: 'Descripción', type: 'textarea', required: true }];
   const columns: ColumnConfig<ProductoAdmin>[] = [{ key: 'imagen', label: 'Imagen', render: (row) => <img src={resolveProductoImage(row.imagen)} className="h-12 w-16 rounded-sm object-cover" /> }, { key: 'nombre', label: 'Nombre' }, { key: 'categoria', label: 'Categoría' }, { key: 'precio', label: 'Precio', render: (row) => money(row.precio) }, { key: 'stock', label: 'Stock', render: (row) => <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${row.stock === 0 ? 'bg-danger/10 text-danger' : 'bg-success/15 text-success'}`}>{row.stock}</span> }];
 
   const submit = async (event: FormEvent) => {
@@ -59,6 +59,18 @@ export default function ProductosPage() {
       window.alert(err instanceof Error ? err.message : 'No se pudo guardar el producto');
     }
   };
+
+  // Calcular precio con descuento automáticamente
+  useEffect(() => {
+    if (form.descuento && form.precio) {
+      const precioOriginal = Number(form.precio);
+      const descuento = Number(form.descuento);
+      const precioConDescuento = precioOriginal - (precioOriginal * descuento / 100);
+      setForm((old) => ({ ...old, precio_descuento: precioConDescuento }));
+    } else {
+      setForm((old) => ({ ...old, precio_descuento: undefined }));
+    }
+  }, [form.descuento, form.precio]);
 
   const remove = async (item: ProductoAdmin) => { try { await deleteProducto(item.id); await load(); } catch (err) { window.alert(err instanceof Error ? err.message : 'No se pudo eliminar el producto.'); } };
 

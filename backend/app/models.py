@@ -55,6 +55,8 @@ class Producto(Base):
     nombre: Mapped[str] = mapped_column(String(150), nullable=False)
     categoria: Mapped[str] = mapped_column(String(100), nullable=False)
     precio: Mapped[float] = mapped_column(Float, nullable=False)
+    descuento: Mapped[float | None] = mapped_column(Float, nullable=True)
+    precio_descuento: Mapped[float | None] = mapped_column(Float, nullable=True)
     stock: Mapped[int] = mapped_column(Integer, nullable=False)
     descripcion: Mapped[str] = mapped_column(Text, nullable=False)
     imagen: Mapped[str] = mapped_column(String(500), nullable=False)
@@ -78,6 +80,8 @@ class Evento(Base):
     cupos: Mapped[int] = mapped_column(Integer, nullable=False)
     cuposDisponibles: Mapped[int] = mapped_column(Integer, nullable=False)
     precio: Mapped[float] = mapped_column(Float, nullable=False)
+    descuento: Mapped[float | None] = mapped_column(Float, nullable=True)
+    precio_descuento: Mapped[float | None] = mapped_column(Float, nullable=True)
     estado: Mapped[str] = mapped_column(String(20), nullable=False)
 
 
