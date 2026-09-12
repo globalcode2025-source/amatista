@@ -53,7 +53,7 @@ export default function EventosPage() {
   ];
   const columns: ColumnConfig<EventoAdmin>[] = [
     { key: 'nombre', label: 'Evento' }, { key: 'media', label: 'Archivo', render: (row) => row.tipo === 'Video' ? <video src={resolveEventoMediaUrl(row.media)} className="h-12 w-16 rounded-sm object-cover" muted /> : <img src={resolveEventoMediaUrl(row.media)} alt={row.nombre} className="h-12 w-16 rounded-sm object-cover" /> },
-    { key: 'fecha', label: 'Fecha' }, { key: 'hora', label: 'Hora' }, { key: 'cuposDisponibles', label: 'Cupos libres' }, { key: 'precio', label: 'Precio', render: (row) => money(row.precio) }, { key: 'estado', label: 'Estado' },
+    { key: 'fecha', label: 'Fecha' }, { key: 'hora', label: 'Hora' }, { key: 'cuposDisponibles', label: 'Cupos libres' }, { key: 'precio', label: 'Precio', render: (row) => money(row.precio) }, { key: 'descuento', label: 'Descuento', render: (row) => row.descuento ? `${row.descuento}%` : '-' }, { key: 'precio_descuento', label: 'Precio descuento', render: (row) => row.precio_descuento ? money(row.precio_descuento) : '-' }, { key: 'estado', label: 'Estado' },
   ];
   const setField = (key: string, value: unknown) => setForm((old) => ({ ...old, [key]: value } as EventForm));
   const openNew = () => { setEditing(null); setForm(EMPTY_FORM); setModalOpen(true); };
