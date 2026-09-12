@@ -7,7 +7,7 @@ export type ProductoInput = Omit<ProductoAdmin, 'id' | 'imagen'> & { imagenFile?
 
 const data = (input: Partial<ProductoInput>) => {
   const form = new FormData();
-  (['nombre', 'categoria', 'precio', 'descuento', 'precio_descuento', 'stock', 'descripcion'] as const).forEach(k => input[k] !== undefined && input[k] !== null && input[k] !== '' && form.append(k, String(input[k])));
+  (['nombre', 'categoria', 'precio', 'descuento', 'precio_descuento', 'fecha_inicio_descuento', 'fecha_fin_descuento', 'stock', 'descripcion'] as const).forEach(k => input[k] !== undefined && input[k] !== null && input[k] !== '' && form.append(k, String(input[k])));
   if (input.imagenFile) form.append('imagen_file', input.imagenFile);
   return form;
 };

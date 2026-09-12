@@ -14,6 +14,7 @@ export interface FieldConfig {
   placeholder?: string;
   className?: string;
   formatCurrency?: boolean;
+  condition?: () => boolean;
 }
 
 interface FormFieldProps {
@@ -26,6 +27,10 @@ const baseClass =
   'w-full rounded-sm border border-ink/15 bg-white px-3.5 py-2.5 text-sm text-ink focus:border-gold focus:outline-none';
 
 export function FormField({ field, value, onChange }: FormFieldProps) {
+  if (field.condition && !field.condition()) {
+    return null;
+  }
+
   if (field.type === 'select') {
     return (
       <label className={`block ${field.className ?? ''}`}>

@@ -57,6 +57,8 @@ class Producto(Base):
     precio: Mapped[float] = mapped_column(Float, nullable=False)
     descuento: Mapped[float | None] = mapped_column(Float, nullable=True)
     precio_descuento: Mapped[float | None] = mapped_column(Float, nullable=True)
+    fecha_inicio_descuento: Mapped[date | None] = mapped_column(Date, nullable=True)
+    fecha_fin_descuento: Mapped[date | None] = mapped_column(Date, nullable=True)
     stock: Mapped[int] = mapped_column(Integer, nullable=False)
     descripcion: Mapped[str] = mapped_column(Text, nullable=False)
     imagen: Mapped[str] = mapped_column(String(500), nullable=False)

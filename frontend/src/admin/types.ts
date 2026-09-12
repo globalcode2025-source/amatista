@@ -26,6 +26,8 @@ export interface ProductoAdmin {
   precio: number;
   descuento?: number;
   precio_descuento?: number;
+  fecha_inicio_descuento?: string;
+  fecha_fin_descuento?: string;
   stock: number;
   descripcion: string;
   imagen: string;

@@ -93,11 +93,27 @@ export default function PedidosPage() {
       : [];
   };
 
+  const discountIsValid = (producto: ProductoAdmin) => {
+    if (!producto.precio_descuento) return false;
+    if (!producto.fecha_inicio_descuento && !producto.fecha_fin_descuento) return true;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (producto.fecha_inicio_descuento) {
+      const startDate = new Date(producto.fecha_inicio_descuento);
+      if (today < startDate) return false;
+    }
+    if (producto.fecha_fin_descuento) {
+      const endDate = new Date(producto.fecha_fin_descuento);
+      if (today > endDate) return false;
+    }
+    return true;
+  };
+
   const totalVenta = useMemo(() => {
     return form.productos.reduce((sum, item) => {
       const producto = productosMap.get(item.productoId);
       if (!producto) return sum;
-      const precioAUsar = producto.precio_descuento || producto.precio;
+      const precioAUsar = discountIsValid(producto) ? producto.precio_descuento! : producto.precio;
       return sum + (precioAUsar * item.cantidad);
     }, 0);
   }, [form.productos, productosMap]);
@@ -525,7 +541,7 @@ export default function PedidosPage() {
                 {form.productos.map((item, index) => {
                   const selectedProduct = productos.find((product) => product.id === item.productoId);
                   const matches = matchingProducts(index);
-                  const precioAUsar = selectedProduct ? (selectedProduct.precio_descuento || selectedProduct.precio) : 0;
+                  const precioAUsar = selectedProduct ? (discountIsValid(selectedProduct) ? selectedProduct.precio_descuento! : selectedProduct.precio) : 0;
                   const subtotal = selectedProduct ? precioAUsar * item.cantidad : 0;
                   const disponible = selectedProduct ? selectedProduct.stock : 0;
                   
@@ -561,10 +577,10 @@ export default function PedidosPage() {
                               >
                                 <strong>{product.nombre}</strong>
                                 <span className="block text-xs text-ink/55">
-                                  {product.precio_descuento ? (
+                                  {discountIsValid(product) ? (
                                     <>
                                       <span className="line-through text-ink/40">{money(product.precio)}</span>
-                                      <span> → {money(product.precio_descuento)}</span>
+                                      <span> → {money(product.precio_descuento!)}</span>
                                     </>
                                   ) : (
                                     money(product.precio)

@@ -15,6 +15,20 @@ router = APIRouter(prefix="/pedidos", tags=["Ventas"])
 COLUMBIA_TZ = ZoneInfo("America/Bogota")
 
 
+def discount_is_valid(product: models.Producto) -> bool:
+    """Check if product discount is valid based on current date."""
+    if not product.precio_descuento:
+        return False
+    if not product.fecha_inicio_descuento and not product.fecha_fin_descuento:
+        return True
+    today = date.today()
+    if product.fecha_inicio_descuento and today < product.fecha_inicio_descuento:
+        return False
+    if product.fecha_fin_descuento and today > product.fecha_fin_descuento:
+        return False
+    return True
+
+
 def serialize(pedido: models.Pedido) -> PedidoRead:
     total_pagado = sum(pago.monto for pago in pedido.pagos)
     debe = max(pedido.total - total_pagado, 0)
@@ -70,7 +84,7 @@ def replace_lines(pedido: models.Pedido, items: list[LineaVentaInput], db: Sessi
     for product_id, quantity in quantities.items():
         product = products[product_id]
         product.stock -= quantity
-        precio_a_usar = product.precio_descuento if product.precio_descuento else product.precio
+        precio_a_usar = product.precio_descuento if discount_is_valid(product) else product.precio
         subtotal = precio_a_usar * quantity
         total += subtotal
         pedido.lineas.append(models.LineaVenta(id=str(uuid4()), producto_id=product.id, precio_unitario=precio_a_usar, cantidad=quantity, subtotal=subtotal))

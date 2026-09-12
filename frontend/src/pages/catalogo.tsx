@@ -42,9 +42,25 @@ export default function Catalogo() {
     });
   }, [category, products, query]);
 
+  const discountIsValid = (product: ProductoAdmin) => {
+    if (!product.precio_descuento) return false;
+    if (!product.fecha_inicio_descuento && !product.fecha_fin_descuento) return true;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (product.fecha_inicio_descuento) {
+      const startDate = new Date(product.fecha_inicio_descuento);
+      if (today < startDate) return false;
+    }
+    if (product.fecha_fin_descuento) {
+      const endDate = new Date(product.fecha_fin_descuento);
+      if (today > endDate) return false;
+    }
+    return true;
+  };
+
   const displayPrice = (product: ProductoAdmin) => {
-    if (product.precio_descuento && product.descuento) {
-      return product.precio_descuento.toLocaleString('es-CO');
+    if (discountIsValid(product)) {
+      return product.precio_descuento!.toLocaleString('es-CO');
     }
     return product.precio.toLocaleString('es-CO');
   };
@@ -79,7 +95,7 @@ export default function Catalogo() {
           <div className="mb-8 flex flex-wrap items-baseline justify-between gap-2.5"><span className="text-[0.85rem] text-ink/55">{loading ? 'Cargando productos...' : `Mostrando ${filtered.length} producto${filtered.length === 1 ? '' : 's'}`}</span><span className="text-[0.85rem] text-ink/55">Precios en COP</span></div>
           {error ? <div className="py-20 text-center text-ink/55"><h2 className="mb-2 font-serif text-xl text-ink">No fue posible cargar el catálogo</h2><p>{error}</p></div> : loading ? <div className="py-20 text-center text-ink/55">Cargando productos...</div> : filtered.length === 0 ? <div className="py-20 text-center text-ink/55"><h2 className="mb-2 font-serif text-xl text-ink">No encontramos productos</h2><p>Intenta con otra palabra o quita el filtro de categoría.</p></div> : <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-3">
             {filtered.map((product) => <article key={product.id} className="group relative flex flex-col overflow-hidden rounded-sm border border-ink/8 bg-white transition-transform duration-500 hover:-translate-y-2 hover:shadow-[0_26px_50px_-20px_rgba(54,32,67,0.28)]">
-              {product.descuento && (
+              {product.descuento && discountIsValid(product) && (
                 <div className="absolute right-3 top-3 rounded-full bg-gold px-3 py-1 text-xs font-semibold text-ink">
                   -{product.descuento}%
                 </div>
@@ -87,7 +103,7 @@ export default function Catalogo() {
               <img src={resolveProductoImage(product.imagen)} alt={product.nombre} className="aspect-square w-full object-cover" />
               <div className="flex flex-1 flex-col p-6 pb-[26px]"><span className="font-hand text-[1.05rem] text-gold">{product.categoria}</span><h2 className="mb-2 mt-1.5 font-serif text-[1.22rem] font-semibold text-ink">{product.nombre}</h2><p className="flex-1 text-sm leading-relaxed text-ink/62">{product.descripcion}</p><div className="mt-4 flex items-center justify-between border-t border-ink/8 pt-4">
                 <div className="flex flex-col">
-                  {product.precio_descuento && product.descuento && (
+                  {discountIsValid(product) && (
                     <span className="text-xs text-ink/40 line-through">
                       {money(product.precio)}
                     </span>

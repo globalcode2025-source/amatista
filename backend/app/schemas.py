@@ -138,6 +138,8 @@ class ProductoBase(BaseModel):
     precio: float
     descuento: float | None = None
     precio_descuento: float | None = None
+    fecha_inicio_descuento: date | None = None
+    fecha_fin_descuento: date | None = None
     stock: int
     descripcion: str
     imagen: str

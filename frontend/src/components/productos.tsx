@@ -5,14 +5,30 @@ import { fetchProductos, resolveProductoImage } from '../services/productos';
 
 export function Productos() {
   const [items, setItems] = useState<ProductoAdmin[]>([]);
-  
+
   useEffect(() => {
     fetchProductos().then(setItems).catch(() => setItems([]));
   }, []);
 
+  const discountIsValid = (p: ProductoAdmin) => {
+    if (!p.precio_descuento) return false;
+    if (!p.fecha_inicio_descuento && !p.fecha_fin_descuento) return true;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (p.fecha_inicio_descuento) {
+      const startDate = new Date(p.fecha_inicio_descuento);
+      if (today < startDate) return false;
+    }
+    if (p.fecha_fin_descuento) {
+      const endDate = new Date(p.fecha_fin_descuento);
+      if (today > endDate) return false;
+    }
+    return true;
+  };
+
   const displayPrice = (p: ProductoAdmin) => {
-    if (p.precio_descuento && p.descuento) {
-      return p.precio_descuento.toLocaleString('es-CO');
+    if (discountIsValid(p)) {
+      return p.precio_descuento!.toLocaleString('es-CO');
     }
     return p.precio.toLocaleString('es-CO');
   };
@@ -27,7 +43,7 @@ export function Productos() {
         <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-3">
           {items.slice(0, 3).map(p => (
             <article key={p.id} className="group relative flex flex-col overflow-hidden rounded-sm border border-ink/8 bg-white">
-              {p.descuento && (
+              {p.descuento && discountIsValid(p) && (
                 <div className="absolute right-3 top-3 rounded-full bg-gold px-3 py-1 text-xs font-semibold text-ink">
                   -{p.descuento}%
                 </div>
@@ -39,7 +55,7 @@ export function Productos() {
                 <p className="flex-1 text-sm leading-relaxed text-ink/62">{p.descripcion}</p>
                 <div className="mt-4 flex items-center justify-between border-t border-ink/8 pt-4">
                   <div className="flex flex-col">
-                    {p.precio_descuento && p.descuento && (
+                    {discountIsValid(p) && (
                       <span className="text-xs text-ink/40 line-through">
                         ${p.precio.toLocaleString('es-CO')}
                       </span>
