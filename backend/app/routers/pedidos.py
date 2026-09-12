@@ -70,9 +70,10 @@ def replace_lines(pedido: models.Pedido, items: list[LineaVentaInput], db: Sessi
     for product_id, quantity in quantities.items():
         product = products[product_id]
         product.stock -= quantity
-        subtotal = product.precio * quantity
+        precio_a_usar = product.precio_descuento if product.precio_descuento else product.precio
+        subtotal = precio_a_usar * quantity
         total += subtotal
-        pedido.lineas.append(models.LineaVenta(id=str(uuid4()), producto_id=product.id, precio_unitario=product.precio, cantidad=quantity, subtotal=subtotal))
+        pedido.lineas.append(models.LineaVenta(id=str(uuid4()), producto_id=product.id, precio_unitario=precio_a_usar, cantidad=quantity, subtotal=subtotal))
     pedido.total = total
 
 

@@ -177,7 +177,8 @@ def create_asistente(evento_id: str, payload: AsistenteEventoCreate, db: Session
     evento = db.get(models.Evento, evento_id)
     if evento is None:
         raise HTTPException(status_code=404, detail="Evento no encontrado")
-    if payload.pago < 0 or payload.pago > evento.precio:
+    precio_a_usar = evento.precio_descuento if evento.precio_descuento else evento.precio
+    if payload.pago < 0 or payload.pago > precio_a_usar:
         raise HTTPException(status_code=422, detail="El pago debe estar entre $0 y el valor del evento.")
     if evento.cuposDisponibles < 1:
         raise HTTPException(status_code=422, detail="El evento no tiene cupos disponibles.")
@@ -200,7 +201,7 @@ def create_asistente(evento_id: str, payload: AsistenteEventoCreate, db: Session
     db.add(asistente)
     db.commit()
     db.refresh(asistente, attribute_names=["cliente"])
-    return _asistente_read(asistente, evento.precio)
+    return _asistente_read(asistente, precio_a_usar)
 
 
 @router.post("/{evento_id}/asistentes/{asistente_id}/pagos", response_model=AsistenteEventoRead)
@@ -209,10 +210,11 @@ def add_pago_asistente(evento_id: str, asistente_id: str, payload: PagoAsistente
     asistente = db.scalar(select(models.AsistenteEvento).options(joinedload(models.AsistenteEvento.cliente)).where(models.AsistenteEvento.id == asistente_id, models.AsistenteEvento.evento_id == evento_id))
     if evento is None or asistente is None:
         raise HTTPException(status_code=404, detail="Asistente no encontrado")
-    debe = max(evento.precio - asistente.pago, 0)
+    precio_a_usar = evento.precio_descuento if evento.precio_descuento else evento.precio
+    debe = max(precio_a_usar - asistente.pago, 0)
     if payload.pago <= 0 or payload.pago > debe:
         raise HTTPException(status_code=422, detail="El pago debe ser mayor a $0 y no puede superar el saldo pendiente.")
     asistente.pago += payload.pago
     db.commit()
     db.refresh(asistente, attribute_names=["cliente"])
-    return _asistente_read(asistente, evento.precio)
+    return _asistente_read(asistente, precio_a_usar)
