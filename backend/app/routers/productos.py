@@ -28,14 +28,14 @@ def delete_file(media: str) -> None:
 def list_productos(db: Session = Depends(get_db)): return list(db.scalars(select(models.Producto).order_by(models.Producto.nombre)).all())
 
 @router.post("", response_model=ProductoRead, status_code=status.HTTP_201_CREATED)
-def create_producto(nombre: str = Form(...), categoria: str = Form(...), precio: float = Form(...), stock: int = Form(...), descripcion: str = Form(...), imagen_file: UploadFile = File(...), db: Session = Depends(get_db)):
-    producto = models.Producto(id=str(uuid4()), nombre=nombre, categoria=categoria, precio=precio, stock=stock, descripcion=descripcion, imagen=save_file(imagen_file)); db.add(producto); db.commit(); db.refresh(producto); return producto
+def create_producto(nombre: str = Form(...), categoria: str = Form(...), precio: float = Form(...), descuento: float | None = Form(None), precio_descuento: float | None = Form(None), stock: int = Form(...), descripcion: str = Form(...), imagen_file: UploadFile = File(...), db: Session = Depends(get_db)):
+    producto = models.Producto(id=str(uuid4()), nombre=nombre, categoria=categoria, precio=precio, descuento=descuento, precio_descuento=precio_descuento, stock=stock, descripcion=descripcion, imagen=save_file(imagen_file)); db.add(producto); db.commit(); db.refresh(producto); return producto
 
 @router.patch("/{producto_id}", response_model=ProductoRead)
-def update_producto(producto_id: str, nombre: str | None = Form(None), categoria: str | None = Form(None), precio: float | None = Form(None), stock: int | None = Form(None), descripcion: str | None = Form(None), imagen_file: UploadFile | None = File(None), db: Session = Depends(get_db)):
+def update_producto(producto_id: str, nombre: str | None = Form(None), categoria: str | None = Form(None), precio: float | None = Form(None), descuento: float | None = Form(None), precio_descuento: float | None = Form(None), stock: int | None = Form(None), descripcion: str | None = Form(None), imagen_file: UploadFile | None = File(None), db: Session = Depends(get_db)):
     producto = db.get(models.Producto, producto_id)
     if not producto: raise HTTPException(status_code=404, detail="Producto no encontrado")
-    for field, value in {"nombre": nombre, "categoria": categoria, "precio": precio, "stock": stock, "descripcion": descripcion}.items():
+    for field, value in {"nombre": nombre, "categoria": categoria, "precio": precio, "descuento": descuento, "precio_descuento": precio_descuento, "stock": stock, "descripcion": descripcion}.items():
         if value is not None: setattr(producto, field, value)
     if imagen_file: delete_file(producto.imagen); producto.imagen = save_file(imagen_file)
     db.commit(); db.refresh(producto); return producto
