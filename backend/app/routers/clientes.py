@@ -33,12 +33,6 @@ def get_cliente(cliente_id: str, db: Session = Depends(get_db)) -> models.Client
 
 @router.post("", response_model=ClienteRead, status_code=status.HTTP_201_CREATED)
 def create_cliente(payload: ClienteCreate, db: Session = Depends(get_db)) -> models.Cliente:
-    # Check if email is unique (only if provided)
-    if payload.email:
-        existing = db.scalar(select(models.Cliente).where(models.Cliente.email == payload.email))
-        if existing:
-            raise HTTPException(status_code=409, detail="Ya existe un cliente con ese correo electrónico.")
-    
     cliente = models.Cliente(id=str(uuid4()), **payload.model_dump())
     db.add(cliente)
     db.commit()
@@ -51,12 +45,6 @@ def update_cliente(cliente_id: str, payload: ClienteUpdate, db: Session = Depend
     cliente = db.get(models.Cliente, cliente_id)
     if cliente is None:
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
-    
-    # Check if email is unique (only if provided and changed)
-    if payload.email is not None and payload.email != cliente.email:
-        existing = db.scalar(select(models.Cliente).where(models.Cliente.email == payload.email))
-        if existing:
-            raise HTTPException(status_code=409, detail="Ya existe un cliente con ese correo electrónico.")
     
     for field, value in payload.model_dump(exclude_unset=True).items():
         setattr(cliente, field, value)
