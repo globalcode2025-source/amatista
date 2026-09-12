@@ -19,10 +19,10 @@ export type AsistenteEventoInput = Pick<AsistenteEvento, 'clienteId' | 'pago'>;
 
 function formData(input: Partial<EventoInput>) {
   const data = new FormData();
-  const fields = ['nombre', 'tipo', 'descripcion', 'fecha', 'hora', 'ubicacion', 'duracion', 'frase', 'queTrae', 'cupos', 'cuposDisponibles', 'precio', 'estado'] as const;
+  const fields = ['nombre', 'tipo', 'descripcion', 'fecha', 'hora', 'ubicacion', 'duracion', 'frase', 'queTrae', 'cupos', 'cuposDisponibles', 'precio', 'descuento', 'precio_descuento', 'estado'] as const;
   fields.forEach((field) => {
     const value = input[field];
-    if (value !== undefined && value !== null) data.append(field, String(value));
+    if (value !== undefined && value !== null && value !== '') data.append(field, String(value));
   });
   if (input.mediaFile) data.append('media_file', input.mediaFile);
   return data;

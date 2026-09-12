@@ -95,7 +95,7 @@ class AsistenteEvento(Base):
     telefono: Mapped[str] = mapped_column(String(40), nullable=False)
     email: Mapped[str] = mapped_column(String(150), nullable=False)
     pago: Mapped[float] = mapped_column(Float, nullable=False, default=0)
-    cliente: Mapped[Cliente | None] = relationship(foreign_keys=[cliente_id])
+    cliente: Mapped[Cliente | None] = relationship(foreign_keys=[cliente_id], overlaps="asistencias")
 
 
 class Pedido(Base):
