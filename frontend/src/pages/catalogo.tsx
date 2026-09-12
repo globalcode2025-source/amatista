@@ -100,7 +100,7 @@ export default function Catalogo() {
                   -{product.descuento}%
                 </div>
               )}
-              <img src={resolveProductoImage(product.imagen)} alt={product.nombre} className="aspect-square w-full object-cover" />
+              <img src={resolveProductoImage(product.imagen)} alt={product.nombre} className="aspect-square w-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x400/f5f0e8/241825?text=Imagen+no+disponible'; }} />
               <div className="flex flex-1 flex-col p-6 pb-[26px]"><span className="font-hand text-[1.05rem] text-gold">{product.categoria}</span><h2 className="mb-2 mt-1.5 font-serif text-[1.22rem] font-semibold text-ink">{product.nombre}</h2><p className="flex-1 text-sm leading-relaxed text-ink/62">{product.descripcion}</p><div className="mt-4 flex items-center justify-between border-t border-ink/8 pt-4">
                 <div className="flex flex-col">
                   {discountIsValid(product) && (

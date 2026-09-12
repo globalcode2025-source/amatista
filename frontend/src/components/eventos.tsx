@@ -37,7 +37,7 @@ export function Eventos() {
                     -{event.descuento}%
                   </div>
                 )}
-                {event.tipo === 'Video' ? <video src={resolveEventoMediaUrl(event.media)} controls playsInline className="h-full w-full object-cover" /> : <img src={resolveEventoMediaUrl(event.media)} alt={event.nombre} className="h-full w-full object-cover" />}
+                {event.tipo === 'Video' ? <video src={resolveEventoMediaUrl(event.media)} controls playsInline className="h-full w-full object-cover" onError={(e) => { (e.target as HTMLVideoElement).poster = 'https://via.placeholder.com/400x500/362043/f5f0e8?text=Video+no+disponible'; }} /> : <img src={resolveEventoMediaUrl(event.media)} alt={event.nombre} className="h-full w-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x500/362043/f5f0e8?text=Imagen+no+disponible'; }} />}
                 <span className="absolute bottom-[18px] left-[18px] rounded-sm bg-gold px-4 py-2 text-[0.72rem] uppercase tracking-[0.05em] text-ink">{event.cuposDisponibles > 0 ? `${event.cuposDisponibles} cupos disponibles` : 'Cupos agotados'}</span>
               </div>
               <div>

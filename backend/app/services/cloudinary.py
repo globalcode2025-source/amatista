@@ -40,8 +40,9 @@ def upload_image(file: UploadFile, folder: str = "amatista") -> str:
 
 
 def delete_image(url: str) -> None:
-    """Delete an image from Cloudinary by URL."""
+    """Delete an image from Cloudinary by URL. Does nothing for local paths."""
     if not url or "cloudinary" not in url:
+        # Skip deletion for local paths or empty URLs
         return
     
     configure_cloudinary()

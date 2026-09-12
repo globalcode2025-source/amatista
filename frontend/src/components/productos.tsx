@@ -48,7 +48,7 @@ export function Productos() {
                   -{p.descuento}%
                 </div>
               )}
-              <img src={resolveProductoImage(p.imagen)} alt={p.nombre} className="aspect-square w-full object-cover" />
+              <img src={resolveProductoImage(p.imagen)} alt={p.nombre} className="aspect-square w-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x400/f5f0e8/241825?text=Imagen+no+disponible'; }} />
               <div className="flex flex-1 flex-col p-6 pb-[26px]">
                 <span className="font-hand text-[1.05rem] text-gold">{p.categoria}</span>
                 <h3 className="mb-2 mt-1.5 font-serif text-[1.28rem] font-semibold text-ink">{p.nombre}</h3>

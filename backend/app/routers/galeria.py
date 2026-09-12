@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, Query, status
@@ -10,31 +9,18 @@ from sqlalchemy.orm import Session
 from app import models
 from app.database import get_db
 from app.schemas import GaleriaCreate, GaleriaRead, GaleriaUpdate
+from app.services.cloudinary import upload_image, delete_image
 
 router = APIRouter(prefix="/galeria", tags=["Galería"])
-MEDIA_DIR = Path(__file__).resolve().parent.parent.parent / "uploads" / "galeria"
 
 
 def _save_upload_file(upload: UploadFile) -> str:
-    MEDIA_DIR.mkdir(parents=True, exist_ok=True)
-    suffix = Path(upload.filename or "").suffix.lower()
-    file_name = f"{uuid4()}{suffix}"
-    destination = MEDIA_DIR / file_name
-
-    with destination.open("wb") as buffer:
-        while chunk := upload.file.read(1024 * 1024):
-            buffer.write(chunk)
-
-    return f"/media/{file_name}"
+    return upload_image(upload, folder="galeria")
 
 
 def _delete_media_file(media_path: str | None) -> None:
-    if not media_path or not media_path.startswith("/media/"):
-        return
-
-    file_path = MEDIA_DIR / media_path.removeprefix("/media/")
-    if file_path.exists():
-        file_path.unlink()
+    if media_path:
+        delete_image(media_path)
 
 
 @router.get("", response_model=list[GaleriaRead])

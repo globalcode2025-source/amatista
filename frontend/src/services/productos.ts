@@ -14,7 +14,14 @@ const data = (input: Partial<ProductoInput>) => {
 
 const error = async (r: Response) => (await r.json().catch(() => null))?.detail ?? 'No se pudo guardar el producto';
 
-export const resolveProductoImage = (image: string) => apiUrl(image);
+export const resolveProductoImage = (image: string) => {
+  // If it's already a full URL (Cloudinary), return it as is
+  if (image.startsWith('http://') || image.startsWith('https://')) {
+    return image;
+  }
+  // Otherwise, it's a local path - return the full URL
+  return apiUrl(image);
+};
 
 export async function fetchProductos() {
   const r = await fetch(BASE);

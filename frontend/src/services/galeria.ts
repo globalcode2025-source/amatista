@@ -22,6 +22,11 @@ function buildFormData(input: GaleriaInput) {
 }
 
 export function resolveMediaUrl(media: string) {
+  // If it's already a full URL (Cloudinary), return it as is
+  if (media.startsWith('http://') || media.startsWith('https://')) {
+    return media;
+  }
+  // Otherwise, it's a local path - return the full URL
   return apiUrl(media);
 }
 

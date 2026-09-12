@@ -61,12 +61,14 @@ export function Galeria() {
                   autoPlay
                   loop
                   playsInline
+                  onError={(e) => { (e.target as HTMLVideoElement).poster = 'https://via.placeholder.com/400x400/3c2748/f5f0e8?text=Video+no+disponible'; }}
                 />
               ) : (
                 <img
                   src={resolveMediaUrl(item.media)}
                   alt={item.titulo}
                   className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                  onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x400/3c2748/f5f0e8?text=Imagen+no+disponible'; }}
                 />
               )}
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(29,16,36,0.02)_0%,rgba(29,16,36,0.08)_45%,rgba(29,16,36,0.72)_100%)]" />

@@ -60,9 +60,9 @@ export default function GaleriaPage() {
       render: (row) => (
         <div className="flex items-center gap-3">
           {row.tipo === 'Imagen' ? (
-            <img src={resolveMediaUrl(row.media)} alt={row.titulo} className="h-12 w-16 rounded-sm object-cover" />
+            <img src={resolveMediaUrl(row.media)} alt={row.titulo} className="h-12 w-16 rounded-sm object-cover" onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/100x100/3c2748/f5f0e8?text=N/A'; }} />
           ) : (
-            <video src={resolveMediaUrl(row.media)} className="h-12 w-16 rounded-sm object-cover" muted playsInline />
+            <video src={resolveMediaUrl(row.media)} className="h-12 w-16 rounded-sm object-cover" muted playsInline onError={(e) => { (e.target as HTMLVideoElement).poster = 'https://via.placeholder.com/100x100/3c2748/f5f0e8?text=N/A'; }} />
           )}
           <span className="max-w-[240px] truncate block text-ink/65">{row.media}</span>
         </div>
