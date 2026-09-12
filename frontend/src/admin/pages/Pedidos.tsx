@@ -524,7 +524,8 @@ export default function PedidosPage() {
                 {form.productos.map((item, index) => {
                   const selectedProduct = productos.find((product) => product.id === item.productoId);
                   const matches = matchingProducts(index);
-                  const subtotal = selectedProduct ? selectedProduct.precio * item.cantidad : 0;
+                  const precioAUsar = selectedProduct ? (selectedProduct.precio_descuento || selectedProduct.precio) : 0;
+                  const subtotal = selectedProduct ? precioAUsar * item.cantidad : 0;
                   const disponible = selectedProduct ? selectedProduct.stock : 0;
                   
                   return (
@@ -558,7 +559,17 @@ export default function PedidosPage() {
                                 className="block w-full border-b border-ink/10 px-3 py-2 text-left text-sm last:border-0 hover:bg-cream"
                               >
                                 <strong>{product.nombre}</strong>
-                                <span className="block text-xs text-ink/55">{money(product.precio)} · Stock: {product.stock}</span>
+                                <span className="block text-xs text-ink/55">
+                                  {product.precio_descuento ? (
+                                    <>
+                                      <span className="line-through text-ink/40">{money(product.precio)}</span>
+                                      <span> → {money(product.precio_descuento)}</span>
+                                    </>
+                                  ) : (
+                                    money(product.precio)
+                                  )}
+                                  {' '}· Stock: {product.stock}
+                                </span>
                               </button>
                             ))}
                           </div>
@@ -596,7 +607,7 @@ export default function PedidosPage() {
                         <label>
                           <span className="mb-1 block text-xs text-ink/55">Precio unitario</span>
                           <div className="rounded-sm bg-cream/50 px-3 py-2 text-sm">
-                            {selectedProduct ? money(selectedProduct.precio) : '$0'}
+                            {selectedProduct ? money(precioAUsar) : '$0'}
                           </div>
                         </label>
                       </div>
