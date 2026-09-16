@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from '
 import { DataTable, type ColumnConfig } from '../components/DataTable';
 import { Modal } from '../components/Modal';
 import { FormField, type FieldConfig } from '../components/FormField';
-import type { EstadoEvento, EventoAdmin, TipoContenido, VisibilidadEvento } from '../types';
+import type { EstadoEvento, EventoAdmin, TipoContenido } from '../types';
 import { addPagoAsistente, createAsistenteEvento, createEvento, deleteEvento, fetchAsistentesEvento, fetchEventos, resolveEventoMediaUrl, updateEvento, type AsistenteEvento } from '../../services/eventos';
 import { fetchClientes } from '../../services/clientes';
 import type { Cliente } from '../types';

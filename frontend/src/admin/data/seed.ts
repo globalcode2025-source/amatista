@@ -46,6 +46,7 @@ export const SEED_PRODUCTOS: ProductoAdmin[] = [
     stock: 18,
     descripcion: 'Kit de velas con aroma floral y acabado artesanal.',
     imagen: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=900&q=80',
+    estado: 'Activo',
   },
   {
     id: 'prd-2',
@@ -54,7 +55,8 @@ export const SEED_PRODUCTOS: ProductoAdmin[] = [
     precio: 92000,
     stock: 9,
     descripcion: 'Florero pintado a mano con esmalte mate.',
-    imagen: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=900&q=80',
+    imagen: 'https://images.unsplash.com/photo-1513364776144-60967b0d800f?auto=format&fit=crop&w=900&q=80',
+    estado: 'Activo',
   },
   {
     id: 'prd-3',
@@ -64,6 +66,7 @@ export const SEED_PRODUCTOS: ProductoAdmin[] = [
     stock: 6,
     descripcion: 'Caja curada con productos seleccionados para obsequio.',
     imagen: 'https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=900&q=80',
+    estado: 'Activo',
   },
 ];
 
@@ -84,6 +87,7 @@ export const SEED_EVENTOS: EventoAdmin[] = [
     cuposDisponibles: 7,
     precio: 150000,
     estado: 'Próximo',
+    visibilidad: 'Público',
   },
   {
     id: 'evt-2',
@@ -101,6 +105,7 @@ export const SEED_EVENTOS: EventoAdmin[] = [
     cuposDisponibles: 0,
     precio: 130000,
     estado: 'Realizado',
+    visibilidad: 'Público',
   },
 ];
 
