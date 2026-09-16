@@ -75,6 +75,7 @@ class EventoBase(BaseModel):
     descuento: float | None = None
     precio_descuento: float | None = None
     estado: str
+    visibilidad: str = "Público"
 
 
 class EventoRead(EventoBase):
@@ -143,6 +144,7 @@ class ProductoBase(BaseModel):
     stock: int
     descripcion: str
     imagen: str
+    estado: str = "Activo"
 
 
 class ProductoRead(ProductoBase):

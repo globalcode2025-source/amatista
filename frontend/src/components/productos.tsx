@@ -7,7 +7,7 @@ export function Productos() {
   const [items, setItems] = useState<ProductoAdmin[]>([]);
 
   useEffect(() => {
-    fetchProductos().then(setItems).catch(() => setItems([]));
+    fetchProductos(false).then(setItems).catch(() => setItems([])); // Solo productos activos
   }, []);
 
   const discountIsValid = (p: ProductoAdmin) => {

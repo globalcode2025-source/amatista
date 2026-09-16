@@ -2,13 +2,14 @@ import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from '
 import { DataTable, type ColumnConfig } from '../components/DataTable';
 import { Modal } from '../components/Modal';
 import { FormField, type FieldConfig } from '../components/FormField';
-import type { EstadoEvento, EventoAdmin, TipoContenido } from '../types';
+import type { EstadoEvento, EventoAdmin, TipoContenido, VisibilidadEvento } from '../types';
 import { addPagoAsistente, createAsistenteEvento, createEvento, deleteEvento, fetchAsistentesEvento, fetchEventos, resolveEventoMediaUrl, updateEvento, type AsistenteEvento } from '../../services/eventos';
 import { fetchClientes } from '../../services/clientes';
 import type { Cliente } from '../types';
 
 const ESTADOS: EstadoEvento[] = ['Próximo', 'Realizado', 'Cancelado'];
 const TIPOS: TipoContenido[] = ['Imagen', 'Video'];
+const VISIBILIDADES = ['Público', 'Privado'];
 const money = (value: number) => `$${value.toLocaleString('es-CO')}`;
 const formatCurrency = (value: string) => {
   const numeric = value.replace(/\D/g, '');
@@ -16,7 +17,7 @@ const formatCurrency = (value: string) => {
 };
 type EventForm = Omit<EventoAdmin, 'id' | 'media' | 'precio'> & { precio: number | ''; mediaFile: File | null; mediaPreview: string };
 type AttendeeForm = { clienteId: string; pago: number | '' };
-const EMPTY_FORM: EventForm = { nombre: '', tipo: 'Imagen', descripcion: '', fecha: '', hora: '', ubicacion: '', duracion: 180, frase: '', queTrae: '', cupos: 1, cuposDisponibles: 1, precio: '', descuento: undefined, precio_descuento: undefined, estado: 'Próximo', mediaFile: null, mediaPreview: '' };
+const EMPTY_FORM: EventForm = { nombre: '', tipo: 'Imagen', descripcion: '', fecha: '', hora: '', ubicacion: '', duracion: 180, frase: '', queTrae: '', cupos: 1, cuposDisponibles: 1, precio: '', descuento: undefined, precio_descuento: undefined, estado: 'Próximo', visibilidad: 'Público', mediaFile: null, mediaPreview: '' };
 const EMPTY_ATTENDEE: AttendeeForm = { clienteId: '', pago: '' };
 
 export default function EventosPage() {
@@ -43,7 +44,7 @@ export default function EventosPage() {
   const selectedClient = clients.find((client) => client.id === attendeeForm.clienteId);
   const matchingClients = clients.filter((client) => `${client.nombre} ${client.telefono} ${client.email}`.toLowerCase().includes(clientQuery.toLowerCase()));
 
-  const load = async () => { try { setLoading(true); setError(''); setItems(await fetchEventos()); } catch (err) { setError(err instanceof Error ? err.message : 'No se pudieron cargar los eventos'); } finally { setLoading(false); } };
+  const load = async () => { try { setLoading(true); setError(''); setItems(await fetchEventos(true)); } catch (err) { setError(err instanceof Error ? err.message : 'No se pudieron cargar los eventos'); } finally { setLoading(false); } };
   useEffect(() => { void load(); }, []);
   useEffect(() => () => { if (form.mediaPreview.startsWith('blob:')) URL.revokeObjectURL(form.mediaPreview); }, [form.mediaPreview]);
   const filteredItems = useMemo(() => items.filter((item) => (statusFilter === 'Todos' || item.estado === statusFilter) && [item.nombre, item.descripcion, item.ubicacion].some((value) => value.toLowerCase().includes(query.toLowerCase()))), [items, query, statusFilter]);
@@ -54,11 +55,12 @@ export default function EventosPage() {
     { key: 'duracion', label: 'Duración (minutos)', type: 'number', required: true }, { key: 'queTrae', label: 'Qué incluye (un elemento por línea)', type: 'textarea', required: true },
     { key: 'cupos', label: 'Cupos totales', type: 'number', required: true }, { key: 'cuposDisponibles', label: 'Cupos disponibles', type: 'number', required: true }, { key: 'precio', label: 'Precio (COP)', type: 'text', required: true, formatCurrency: true },
     { key: 'descuento', label: 'Descuento (%)', type: 'number', required: false },
-    { key: 'estado', label: 'Estado', type: 'select', required: true, options: ESTADOS.map((e) => ({ label: e, value: e })) }
+    { key: 'estado', label: 'Estado', type: 'select', required: true, options: ESTADOS.map((e) => ({ label: e, value: e })) },
+    { key: 'visibilidad', label: 'Visibilidad', type: 'select', required: true, options: VISIBILIDADES.map((v) => ({ label: v, value: v })) }
   ];
   const columns: ColumnConfig<EventoAdmin>[] = [
     { key: 'nombre', label: 'Evento' }, { key: 'media', label: 'Archivo', render: (row) => row.tipo === 'Video' ? <video src={resolveEventoMediaUrl(row.media)} className="h-12 w-16 rounded-sm object-cover" muted onError={(e) => { (e.target as HTMLVideoElement).poster = 'https://via.placeholder.com/100x100/362043/f5f0e8?text=N/A'; }} /> : <img src={resolveEventoMediaUrl(row.media)} alt={row.nombre} className="h-12 w-16 rounded-sm object-cover" onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/100x100/362043/f5f0e8?text=N/A'; }} /> },
-    { key: 'fecha', label: 'Fecha' }, { key: 'hora', label: 'Hora' }, { key: 'cuposDisponibles', label: 'Cupos libres' }, { key: 'precio', label: 'Precio', render: (row) => money(row.precio) }, { key: 'descuento', label: 'Descuento', render: (row) => row.descuento ? `${row.descuento}%` : '-' }, { key: 'precio_descuento', label: 'Precio descuento', render: (row) => row.precio_descuento ? money(row.precio_descuento) : '-' }, { key: 'estado', label: 'Estado' },
+    { key: 'fecha', label: 'Fecha' }, { key: 'hora', label: 'Hora' }, { key: 'cuposDisponibles', label: 'Cupos libres' }, { key: 'precio', label: 'Precio', render: (row) => money(row.precio) }, { key: 'descuento', label: 'Descuento', render: (row) => row.descuento ? `${row.descuento}%` : '-' }, { key: 'precio_descuento', label: 'Precio descuento', render: (row) => row.precio_descuento ? money(row.precio_descuento) : '-' }, { key: 'estado', label: 'Estado' }, { key: 'visibilidad', label: 'Visibilidad', render: (row) => <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${row.visibilidad === 'Público' ? 'bg-success/15 text-success' : 'bg-danger/10 text-danger'}`}>{row.visibilidad}</span> },
   ];
   const setField = (key: string, value: unknown) => setForm((old) => ({ ...old, [key]: value } as EventForm));
   const openNew = () => { setEditing(null); setForm(EMPTY_FORM); setModalOpen(true); };

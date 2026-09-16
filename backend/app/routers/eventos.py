@@ -67,9 +67,11 @@ def _refresh_event_statuses(db: Session) -> None:
 
 
 @router.get("", response_model=list[EventoRead])
-def list_eventos(q: str | None = Query(default=None), db: Session = Depends(get_db)) -> list[models.Evento]:
+def list_eventos(q: str | None = Query(default=None), include_private: bool = False, db: Session = Depends(get_db)) -> list[models.Evento]:
     _refresh_event_statuses(db)
     stmt = select(models.Evento).order_by(models.Evento.fecha.asc(), models.Evento.hora.asc())
+    if not include_private:
+        stmt = stmt.where(models.Evento.visibilidad == "Público")
     if q and q.strip():
         term = f"%{q.strip()}%"
         stmt = stmt.where(or_(models.Evento.nombre.ilike(term), models.Evento.ubicacion.ilike(term), models.Evento.descripcion.ilike(term)))
@@ -89,13 +91,13 @@ def get_evento(evento_id: str, db: Session = Depends(get_db)) -> models.Evento:
 def create_evento(
     nombre: str = Form(...), tipo: str = Form(...), descripcion: str = Form(...), fecha: date = Form(...), hora: time = Form(...),
     ubicacion: str = Form(...), duracion: int = Form(...), frase: str = Form(...), queTrae: str = Form(...), cupos: int = Form(...),
-    cuposDisponibles: int = Form(...), precio: float = Form(...), descuento: float | None = Form(None), precio_descuento: float | None = Form(None), media_file: UploadFile = File(...),
+    cuposDisponibles: int = Form(...), precio: float = Form(...), descuento: float | None = Form(None), precio_descuento: float | None = Form(None), media_file: UploadFile = File(...), visibilidad: str = Form("Público"),
     db: Session = Depends(get_db),
 ) -> models.Evento:
     _validate_values(tipo, cupos, cuposDisponibles, duracion, precio)
     evento = models.Evento(id=str(uuid4()), nombre=nombre, tipo=tipo, media=_save_upload_file(media_file, tipo), descripcion=descripcion,
         fecha=fecha, hora=hora, ubicacion=ubicacion, duracion=duracion, frase=frase, queTrae=queTrae, cupos=cupos,
-        cuposDisponibles=cuposDisponibles, precio=precio, descuento=descuento, precio_descuento=precio_descuento, estado="Próximo")
+        cuposDisponibles=cuposDisponibles, precio=precio, descuento=descuento, precio_descuento=precio_descuento, estado="Próximo", visibilidad=visibilidad)
     db.add(evento)
     db.commit()
     db.refresh(evento)
@@ -107,13 +109,13 @@ def update_evento(
     evento_id: str, nombre: str | None = Form(None), tipo: str | None = Form(None), descripcion: str | None = Form(None),
     fecha: date | None = Form(None), hora: time | None = Form(None), ubicacion: str | None = Form(None), duracion: int | None = Form(None),
     frase: str | None = Form(None), queTrae: str | None = Form(None), cupos: int | None = Form(None), cuposDisponibles: int | None = Form(None),
-    precio: float | None = Form(None), descuento: float | None = Form(None), precio_descuento: float | None = Form(None), estado: str | None = Form(None), media_file: UploadFile | None = File(None), db: Session = Depends(get_db),
+    precio: float | None = Form(None), descuento: float | None = Form(None), precio_descuento: float | None = Form(None), estado: str | None = Form(None), visibilidad: str | None = Form(None), media_file: UploadFile | None = File(None), db: Session = Depends(get_db),
 ) -> models.Evento:
     evento = db.get(models.Evento, evento_id)
     if evento is None:
         raise HTTPException(status_code=404, detail="Evento no encontrado")
     values = {"nombre": nombre, "tipo": tipo, "descripcion": descripcion, "fecha": fecha, "hora": hora, "ubicacion": ubicacion,
-        "duracion": duracion, "frase": frase, "queTrae": queTrae, "cupos": cupos, "cuposDisponibles": cuposDisponibles, "precio": precio, "descuento": descuento, "precio_descuento": precio_descuento, "estado": estado}
+        "duracion": duracion, "frase": frase, "queTrae": queTrae, "cupos": cupos, "cuposDisponibles": cuposDisponibles, "precio": precio, "descuento": descuento, "precio_descuento": precio_descuento, "estado": estado, "visibilidad": visibilidad}
     final_tipo = tipo if tipo is not None else evento.tipo
     _validate_values(final_tipo, cupos if cupos is not None else evento.cupos, cuposDisponibles if cuposDisponibles is not None else evento.cuposDisponibles,
                      duracion if duracion is not None else evento.duracion, precio if precio is not None else evento.precio)

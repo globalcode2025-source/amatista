@@ -13,6 +13,10 @@ engine = create_engine(
     DATABASE_URL,
     echo=False,
     future=True,
+    pool_size=10,
+    max_overflow=20,
+    pool_pre_ping=True,
+    pool_recycle=3600,
 )
 
 SessionLocal = sessionmaker(

@@ -9,7 +9,7 @@ import { fetchCategorias, createCategoria, deleteCategoria } from '../../service
 
 const money = (n: number) => `$${n.toLocaleString('es-CO')}`;
 type Form = Omit<ProductoAdmin, 'id' | 'imagen'> & { imagenFile: File | null; preview: string };
-const empty: Form = { nombre: '', categoria: '', precio: 0 as any, descuento: undefined, precio_descuento: undefined, fecha_inicio_descuento: undefined, fecha_fin_descuento: undefined, stock: 0, descripcion: '', imagenFile: null, preview: '' };
+const empty: Form = { nombre: '', categoria: '', precio: 0 as any, descuento: undefined, precio_descuento: undefined, fecha_inicio_descuento: undefined, fecha_fin_descuento: undefined, stock: 0, descripcion: '', imagenFile: null, preview: '', estado: 'Activo' };
 
 export default function ProductosPage() {
   const [items, setItems] = useState<ProductoAdmin[]>([]);
@@ -25,7 +25,7 @@ export default function ProductosPage() {
 
   const load = async () => { 
     try { 
-      const [loadedProductos, loadedCategorias] = await Promise.all([fetchProductos(), fetchCategorias()]);
+      const [loadedProductos, loadedCategorias] = await Promise.all([fetchProductos(true), fetchCategorias()]); // Cargar todos los productos (activos e inactivos) para el admin
       setItems(loadedProductos); 
       setCategorias(loadedCategorias);
     } catch (e) { 
@@ -41,8 +41,8 @@ export default function ProductosPage() {
     }
     return categorias.map((cat) => ({ value: cat.nombre, label: cat.nombre }));
   }, [categorias]);
-  const fields: FieldConfig[] = [{ key: 'nombre', label: 'Nombre', type: 'text', required: true }, { key: 'categoria', label: 'Categoría', type: 'select', required: true, options: categoriaOptions }, { key: 'precio', label: 'Precio (COP)', type: 'text', required: true, formatCurrency: true }, { key: 'descuento', label: 'Descuento (%)', type: 'number', required: false }, { key: 'fecha_inicio_descuento', label: 'Fecha inicio descuento', type: 'date', required: false, condition: () => Boolean(form.descuento) }, { key: 'fecha_fin_descuento', label: 'Fecha fin descuento', type: 'date', required: false, condition: () => Boolean(form.descuento) }, { key: 'stock', label: 'Stock', type: 'number', required: true }, { key: 'descripcion', label: 'Descripción', type: 'textarea', required: true }];
-  const columns: ColumnConfig<ProductoAdmin>[] = [{ key: 'imagen', label: 'Imagen', render: (row) => <img src={resolveProductoImage(row.imagen)} className="h-12 w-16 rounded-sm object-cover" onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/100x100/f5f0e8/241825?text=N/A'; }} /> }, { key: 'nombre', label: 'Nombre' }, { key: 'categoria', label: 'Categoría' }, { key: 'precio', label: 'Precio', render: (row) => money(row.precio) }, { key: 'descuento', label: 'Descuento', render: (row) => row.descuento ? `${row.descuento}%` : '-' }, { key: 'precio_descuento', label: 'Precio descuento', render: (row) => row.precio_descuento ? money(row.precio_descuento) : '-' }, { key: 'stock', label: 'Stock', render: (row) => <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${row.stock === 0 ? 'bg-danger/10 text-danger' : 'bg-success/15 text-success'}`}>{row.stock}</span> }];
+  const fields: FieldConfig[] = [{ key: 'nombre', label: 'Nombre', type: 'text', required: true }, { key: 'categoria', label: 'Categoría', type: 'select', required: true, options: categoriaOptions }, { key: 'precio', label: 'Precio (COP)', type: 'text', required: true, formatCurrency: true }, { key: 'descuento', label: 'Descuento (%)', type: 'number', required: false }, { key: 'fecha_inicio_descuento', label: 'Fecha inicio descuento', type: 'date', required: false, condition: () => Boolean(form.descuento) }, { key: 'fecha_fin_descuento', label: 'Fecha fin descuento', type: 'date', required: false, condition: () => Boolean(form.descuento) }, { key: 'stock', label: 'Stock', type: 'number', required: true }, { key: 'descripcion', label: 'Descripción', type: 'textarea', required: true }, { key: 'estado', label: 'Estado', type: 'select', required: true, options: [{ value: 'Activo', label: 'Activo' }, { value: 'Inactivo', label: 'Inactivo' }] }];
+  const columns: ColumnConfig<ProductoAdmin>[] = [{ key: 'imagen', label: 'Imagen', render: (row) => <img src={resolveProductoImage(row.imagen)} className="h-12 w-16 rounded-sm object-cover" onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/100x100/f5f0e8/241825?text=N/A'; }} /> }, { key: 'nombre', label: 'Nombre' }, { key: 'categoria', label: 'Categoría' }, { key: 'precio', label: 'Precio', render: (row) => money(row.precio) }, { key: 'descuento', label: 'Descuento', render: (row) => row.descuento ? `${row.descuento}%` : '-' }, { key: 'precio_descuento', label: 'Precio descuento', render: (row) => row.precio_descuento ? money(row.precio_descuento) : '-' }, { key: 'stock', label: 'Stock', render: (row) => <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${row.stock === 0 ? 'bg-danger/10 text-danger' : 'bg-success/15 text-success'}`}>{row.stock}</span> }, { key: 'estado', label: 'Estado', render: (row) => <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${row.estado === 'Activo' ? 'bg-success/15 text-success' : 'bg-danger/10 text-danger'}`}>{row.estado}</span> }];
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();

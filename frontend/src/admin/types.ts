@@ -19,6 +19,8 @@ export interface Categoria {
   nombre: string;
 }
 
+export type EstadoProducto = 'Activo' | 'Inactivo';
+
 export interface ProductoAdmin {
   id: string;
   nombre: string;
@@ -31,9 +33,11 @@ export interface ProductoAdmin {
   stock: number;
   descripcion: string;
   imagen: string;
+  estado: EstadoProducto;
 }
 
 export type EstadoEvento = 'Próximo' | 'Realizado' | 'Cancelado';
+export type VisibilidadEvento = 'Público' | 'Privado';
 
 export interface EventoAdmin {
   id: string;
@@ -53,6 +57,7 @@ export interface EventoAdmin {
   descuento?: number;
   precio_descuento?: number;
   estado: EstadoEvento;
+  visibilidad: VisibilidadEvento;
 }
 
 export interface LineaVenta {

@@ -11,18 +11,22 @@ from app.services.cloudinary import upload_image, delete_image
 router = APIRouter(prefix="/productos", tags=["Productos"])
 
 @router.get("", response_model=list[ProductoRead])
-def list_productos(db: Session = Depends(get_db)): return list(db.scalars(select(models.Producto).order_by(models.Producto.nombre)).all())
+def list_productos(include_inactive: bool = False, db: Session = Depends(get_db)):
+    stmt = select(models.Producto).order_by(models.Producto.nombre)
+    if not include_inactive:
+        stmt = stmt.where(models.Producto.estado == "Activo")
+    return list(db.scalars(stmt).all())
 
 @router.post("", response_model=ProductoRead, status_code=status.HTTP_201_CREATED)
-def create_producto(nombre: str = Form(...), categoria: str = Form(...), precio: float = Form(...), descuento: float | None = Form(None), precio_descuento: float | None = Form(None), fecha_inicio_descuento: date | None = Form(None), fecha_fin_descuento: date | None = Form(None), stock: int = Form(...), descripcion: str = Form(...), imagen_file: UploadFile = File(...), db: Session = Depends(get_db)):
+def create_producto(nombre: str = Form(...), categoria: str = Form(...), precio: float = Form(...), descuento: float | None = Form(None), precio_descuento: float | None = Form(None), fecha_inicio_descuento: date | None = Form(None), fecha_fin_descuento: date | None = Form(None), stock: int = Form(...), descripcion: str = Form(...), imagen_file: UploadFile = File(...), estado: str = Form("Activo"), db: Session = Depends(get_db)):
     imagen_url = upload_image(imagen_file, folder="productos")
-    producto = models.Producto(id=str(uuid4()), nombre=nombre, categoria=categoria, precio=precio, descuento=descuento, precio_descuento=precio_descuento, fecha_inicio_descuento=fecha_inicio_descuento, fecha_fin_descuento=fecha_fin_descuento, stock=stock, descripcion=descripcion, imagen=imagen_url); db.add(producto); db.commit(); db.refresh(producto); return producto
+    producto = models.Producto(id=str(uuid4()), nombre=nombre, categoria=categoria, precio=precio, descuento=descuento, precio_descuento=precio_descuento, fecha_inicio_descuento=fecha_inicio_descuento, fecha_fin_descuento=fecha_fin_descuento, stock=stock, descripcion=descripcion, imagen=imagen_url, estado=estado); db.add(producto); db.commit(); db.refresh(producto); return producto
 
 @router.patch("/{producto_id}", response_model=ProductoRead)
-def update_producto(producto_id: str, nombre: str | None = Form(None), categoria: str | None = Form(None), precio: float | None = Form(None), descuento: float | None = Form(None), precio_descuento: float | None = Form(None), fecha_inicio_descuento: date | None = Form(None), fecha_fin_descuento: date | None = Form(None), stock: int | None = Form(None), descripcion: str | None = Form(None), imagen_file: UploadFile | None = File(None), db: Session = Depends(get_db)):
+def update_producto(producto_id: str, nombre: str | None = Form(None), categoria: str | None = Form(None), precio: float | None = Form(None), descuento: float | None = Form(None), precio_descuento: float | None = Form(None), fecha_inicio_descuento: date | None = Form(None), fecha_fin_descuento: date | None = Form(None), stock: int | None = Form(None), descripcion: str | None = Form(None), imagen_file: UploadFile | None = File(None), estado: str | None = Form(None), db: Session = Depends(get_db)):
     producto = db.get(models.Producto, producto_id)
     if not producto: raise HTTPException(status_code=404, detail="Producto no encontrado")
-    for field, value in {"nombre": nombre, "categoria": categoria, "precio": precio, "descuento": descuento, "precio_descuento": precio_descuento, "fecha_inicio_descuento": fecha_inicio_descuento, "fecha_fin_descuento": fecha_fin_descuento, "stock": stock, "descripcion": descripcion}.items():
+    for field, value in {"nombre": nombre, "categoria": categoria, "precio": precio, "descuento": descuento, "precio_descuento": precio_descuento, "fecha_inicio_descuento": fecha_inicio_descuento, "fecha_fin_descuento": fecha_fin_descuento, "stock": stock, "descripcion": descripcion, "estado": estado}.items():
         if value is not None: setattr(producto, field, value)
     if imagen_file:
         delete_image(producto.imagen)

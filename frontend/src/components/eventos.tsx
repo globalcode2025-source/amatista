@@ -8,7 +8,7 @@ const formatPrice = (value: number) => `$ ${value.toLocaleString('es-CO')}`;
 
 export function Eventos() {
   const [events, setEvents] = useState<EventoAdmin[]>([]);
-  useEffect(() => { fetchEventos().then(setEvents).catch(() => setEvents([])); }, []);
+  useEffect(() => { fetchEventos(false).then(setEvents).catch(() => setEvents([])); }, []); // Solo eventos públicos
   const publicEvents = events.filter((item) => item.estado === 'Próximo');
 
   const displayPrice = (event: EventoAdmin) => {

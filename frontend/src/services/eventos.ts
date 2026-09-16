@@ -19,7 +19,7 @@ export type AsistenteEventoInput = Pick<AsistenteEvento, 'clienteId' | 'pago'>;
 
 function formData(input: Partial<EventoInput>) {
   const data = new FormData();
-  const fields = ['nombre', 'tipo', 'descripcion', 'fecha', 'hora', 'ubicacion', 'duracion', 'frase', 'queTrae', 'cupos', 'cuposDisponibles', 'precio', 'descuento', 'precio_descuento', 'estado'] as const;
+  const fields = ['nombre', 'tipo', 'descripcion', 'fecha', 'hora', 'ubicacion', 'duracion', 'frase', 'queTrae', 'cupos', 'cuposDisponibles', 'precio', 'descuento', 'precio_descuento', 'estado', 'visibilidad'] as const;
   fields.forEach((field) => {
     const value = input[field];
     if (value !== undefined && value !== null && value !== '') data.append(field, String(value));
@@ -37,8 +37,9 @@ export function resolveEventoMediaUrl(media: string) {
   return apiUrl(media);
 }
 
-export async function fetchEventos(): Promise<EventoAdmin[]> {
-  const response = await fetch(BASE_URL);
+export async function fetchEventos(includePrivate: boolean = false): Promise<EventoAdmin[]> {
+  const url = includePrivate ? `${BASE_URL}?include_private=true` : BASE_URL;
+  const response = await fetch(url);
   if (!response.ok) throw new Error('No se pudieron cargar los eventos');
   return (await response.json()) as EventoAdmin[];
 }

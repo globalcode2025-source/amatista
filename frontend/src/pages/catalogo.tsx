@@ -16,7 +16,7 @@ export default function Catalogo() {
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        setProducts(await fetchProductos());
+        setProducts(await fetchProductos(false)); // Solo productos activos
       } catch (err) {
         setError(err instanceof Error ? err.message : 'No se pudieron cargar los productos.');
       } finally {

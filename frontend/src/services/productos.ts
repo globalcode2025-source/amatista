@@ -7,7 +7,7 @@ export type ProductoInput = Omit<ProductoAdmin, 'id' | 'imagen'> & { imagenFile?
 
 const data = (input: Partial<ProductoInput>) => {
   const form = new FormData();
-  (['nombre', 'categoria', 'precio', 'descuento', 'precio_descuento', 'fecha_inicio_descuento', 'fecha_fin_descuento', 'stock', 'descripcion'] as const).forEach(k => input[k] !== undefined && input[k] !== null && input[k] !== '' && form.append(k, String(input[k])));
+  (['nombre', 'categoria', 'precio', 'descuento', 'precio_descuento', 'fecha_inicio_descuento', 'fecha_fin_descuento', 'stock', 'descripcion', 'estado'] as const).forEach(k => input[k] !== undefined && input[k] !== null && input[k] !== '' && form.append(k, String(input[k])));
   if (input.imagenFile) form.append('imagen_file', input.imagenFile);
   return form;
 };
@@ -23,8 +23,9 @@ export const resolveProductoImage = (image: string) => {
   return apiUrl(image);
 };
 
-export async function fetchProductos() {
-  const r = await fetch(BASE);
+export async function fetchProductos(includeInactive: boolean = false) {
+  const url = includeInactive ? `${BASE}?include_inactive=true` : BASE;
+  const r = await fetch(url);
   if (!r.ok) throw new Error('No se pudieron cargar los productos');
   return await r.json() as ProductoAdmin[];
 }

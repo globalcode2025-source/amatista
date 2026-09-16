@@ -62,6 +62,7 @@ class Producto(Base):
     stock: Mapped[int] = mapped_column(Integer, nullable=False)
     descripcion: Mapped[str] = mapped_column(Text, nullable=False)
     imagen: Mapped[str] = mapped_column(String(500), nullable=False)
+    estado: Mapped[str] = mapped_column(String(20), nullable=False, default="Activo")
     lineas_venta: Mapped[list[LineaVenta]] = relationship(back_populates="producto")
 
 
@@ -85,6 +86,7 @@ class Evento(Base):
     descuento: Mapped[float | None] = mapped_column(Float, nullable=True)
     precio_descuento: Mapped[float | None] = mapped_column(Float, nullable=True)
     estado: Mapped[str] = mapped_column(String(20), nullable=False)
+    visibilidad: Mapped[str] = mapped_column(String(20), nullable=False, default="Público")
 
 
 class AsistenteEvento(Base):
