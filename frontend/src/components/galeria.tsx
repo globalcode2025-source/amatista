@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { GaleriaAdmin } from '../admin/types';
 import { fetchGaleria, resolveMediaUrl } from '../services/galeria';
+import { MediaModal } from './MediaModal';
 
 const SIZE_CLASSES = ['tall', 'normal', 'wide', 'normal', 'tall', 'normal', 'wide'] as const;
 
@@ -11,6 +12,8 @@ function getSize(index: number) {
 export function Galeria() {
   const [items, setItems] = useState<GaleriaAdmin[]>([]);
   const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<GaleriaAdmin | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -52,6 +55,10 @@ export function Galeria() {
               className={`group relative flex cursor-pointer items-stretch justify-stretch overflow-hidden rounded-sm bg-[#3c2748] ${
                 getSize(index) === 'tall' ? 'row-span-2' : ''
               } ${getSize(index) === 'wide' ? 'sm:col-span-2' : ''}`}
+              onDoubleClick={() => {
+                setSelectedItem(item);
+                setModalOpen(true);
+              }}
             >
               {item.tipo === 'Video' ? (
                 <video
@@ -79,6 +86,15 @@ export function Galeria() {
           ))}
         </div>
       </div>
+      
+      <MediaModal
+        open={modalOpen}
+        item={selectedItem}
+        onClose={() => {
+          setModalOpen(false);
+          setSelectedItem(null);
+        }}
+      />
     </section>
   );
 }
