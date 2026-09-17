@@ -12,11 +12,11 @@ export function MediaModal({ open, item, onClose }: MediaModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-[300] flex items-center justify-center bg-[rgba(29,16,36,0.85)] p-4 backdrop-blur-sm transition-opacity duration-300"
+      className="fixed inset-0 z-[300] flex items-center justify-center bg-[rgba(29,16,36,0.85)] p-2 sm:p-4 backdrop-blur-sm transition-opacity duration-300"
       onClick={onClose}
     >
       <div
-        className="relative max-h-[90vh] w-full max-w-[800px] overflow-hidden rounded-sm bg-white shadow-2xl transition-all duration-300"
+        className="relative max-h-[90vh] w-full max-w-[800px] overflow-hidden rounded-sm bg-white shadow-2xl transition-all duration-300 flex flex-col sm:max-w-[700px] md:max-w-[800px]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
@@ -32,7 +32,7 @@ export function MediaModal({ open, item, onClose }: MediaModalProps) {
         </button>
 
         {/* Media content */}
-        <div className="relative aspect-video w-full bg-[#1d1024]">
+        <div className="relative aspect-video w-full bg-[#1d1024] flex-shrink-0 max-h-[50vh]">
           {item.tipo === 'Video' ? (
             <video
               src={resolveMediaUrl(item.media)}
@@ -56,34 +56,34 @@ export function MediaModal({ open, item, onClose }: MediaModalProps) {
         </div>
 
         {/* Content section */}
-        <div className="bg-gradient-to-b from-cream to-white p-8">
-          <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gold/20">
+        <div className="bg-gradient-to-b from-cream to-white p-4 sm:p-6 overflow-y-auto flex-shrink-0 min-h-[100px]">
+          <div className="mb-3 flex items-center gap-3">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gold/20">
               {item.tipo === 'Video' ? (
-                <svg className="h-4 w-4 text-gold" fill="currentColor" viewBox="0 0 24 24">
+                <svg className="h-3.5 w-3.5 text-gold" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M8 5v14l11-7z" />
                 </svg>
               ) : (
-                <svg className="h-4 w-4 text-gold" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <svg className="h-3.5 w-3.5 text-gold" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               )}
             </div>
-            <span className="text-sm font-medium text-gold/80 uppercase tracking-wider">
+            <span className="text-xs font-medium text-gold/80 uppercase tracking-wider">
               {item.tipo}
             </span>
           </div>
 
-          <h3 className="mb-4 font-serif text-2xl font-semibold text-ink">{item.titulo}</h3>
+          <h3 className="mb-3 font-serif text-lg sm:text-xl font-semibold text-ink">{item.titulo}</h3>
           
           {item.descripcion && (
-            <p className="leading-relaxed text-ink/70">{item.descripcion}</p>
+            <p className="leading-relaxed text-sm text-ink/70 whitespace-pre-wrap">{item.descripcion}</p>
           )}
 
           {/* Decorative elements */}
-          <div className="mt-6 flex items-center gap-2">
+          <div className="mt-4 flex items-center gap-2">
             <div className="h-px flex-1 bg-gradient-to-r from-gold/0 via-gold/40 to-gold/0" />
-            <div className="h-2 w-2 rounded-full bg-gold/60" />
+            <div className="h-1.5 w-1.5 rounded-full bg-gold/60" />
             <div className="h-px flex-1 bg-gradient-to-r from-gold/0 via-gold/40 to-gold/0" />
           </div>
         </div>

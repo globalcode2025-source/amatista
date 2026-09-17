@@ -51,7 +51,7 @@ export default function Dashboard() {
       try { 
         setLoading(true); 
         setError(''); 
-        const [loadedVentas, loadedGastos, loadedCostos, loadedClientes, loadedEventos] = await Promise.all([fetchPedidos(), fetchGastos(), fetchCostos(), fetchClientes(), fetchEventos()]); 
+        const [loadedVentas, loadedGastos, loadedCostos, loadedClientes, loadedEventos] = await Promise.all([fetchPedidos(), fetchGastos(), fetchCostos(), fetchClientes(), fetchEventos(true)]); 
         const asistentes = await Promise.all(loadedEventos.map(async (evento) => { 
           const asistentesEvento = await fetchAsistentesEvento(evento.id);
           return { 
