@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Modal } from './Modal';
 
 export interface ColumnConfig<T = any> {
@@ -21,6 +21,7 @@ interface DataTableProps<T extends { id: string }> {
   onPayment?: (row: T) => void;
   emptyLabel?: string;
   showActions?: boolean; // Nueva opción para mostrar/ocultar acciones
+  itemsPerPage?: number; // Opción para configurar items por página
 }
 
 const defaultWhatsappUrl = (row: { id: string }) => {
@@ -29,8 +30,19 @@ const defaultWhatsappUrl = (row: { id: string }) => {
   return `https://wa.me/${phone.length === 10 && phone.startsWith('3') ? `57${phone}` : phone}`;
 };
 
-export function DataTable<T extends { id: string }>({ columns, rows, onEdit, onDelete, onView, viewLabel = 'Ver detalles', whatsappUrl = defaultWhatsappUrl, onRowDoubleClick, onPayment, emptyLabel, showActions = true }: DataTableProps<T>) {
+export function DataTable<T extends { id: string }>({ columns, rows, onEdit, onDelete, onView, viewLabel = 'Ver detalles', whatsappUrl = defaultWhatsappUrl, onRowDoubleClick, onPayment, emptyLabel, showActions = true, itemsPerPage = 20 }: DataTableProps<T>) {
   const [pendingDelete, setPendingDelete] = useState<T | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  
+  const totalPages = Math.ceil(rows.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedRows = rows.slice(startIndex, startIndex + itemsPerPage);
+  
+  // Reset to page 1 when rows change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [rows.length]);
+  
   if (rows.length === 0) {
     return (
       <div className="rounded-sm border border-ink/10 bg-white py-16 text-center text-sm text-ink/50">
@@ -53,7 +65,7 @@ export function DataTable<T extends { id: string }>({ columns, rows, onEdit, onD
           </tr>
         </thead>
         <tbody>
-          {rows.map((row) => (
+          {paginatedRows.map((row) => (
             <tr key={row.id} onDoubleClick={() => onRowDoubleClick?.(row)} className={`border-b border-ink/6 transition-colors last:border-0 hover:bg-cream/40 ${onRowDoubleClick ? 'cursor-pointer' : ''}`}>
               {columns.map((c) => (
                 <td key={c.key} className={`px-5 py-4 text-ink/80 ${c.className ?? ''}`}>
@@ -107,6 +119,29 @@ export function DataTable<T extends { id: string }>({ columns, rows, onEdit, onD
           ))}
         </tbody>
       </table>
+      {totalPages > 1 && (
+        <div className="mt-4 flex items-center justify-between border-t border-ink/10 bg-white px-5 py-3">
+          <p className="text-xs text-ink/55">
+            Página {currentPage} de {totalPages} ({rows.length} registros)
+          </p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1.5 text-sm border border-ink/20 rounded hover:bg-cream disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Anterior
+            </button>
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1.5 text-sm border border-ink/20 rounded hover:bg-cream disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Siguiente
+            </button>
+          </div>
+        </div>
+      )}
       <Modal open={Boolean(pendingDelete)} title="Confirmar eliminación" onClose={() => setPendingDelete(null)}>
         <p className="text-center text-sm leading-relaxed text-ink/70">¿Estás seguro de que quieres eliminar este registro? Esta acción no se puede deshacer.</p>
         <div className="mt-7 flex justify-center gap-3"><button type="button" onClick={() => setPendingDelete(null)} className="px-5 py-2.5 text-sm text-ink/60">Cancelar</button><button type="button" onClick={() => { if (pendingDelete) onDelete(pendingDelete); setPendingDelete(null); }} className="rounded-sm bg-danger px-6 py-2.5 text-sm text-white">Eliminar</button></div>
